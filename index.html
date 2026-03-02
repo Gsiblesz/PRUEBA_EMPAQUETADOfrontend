@@ -509,7 +509,7 @@
                         paquetes: String((p && p.paquetes_por_cesta) || '').trim(),
                         unidad: '', 
                         sobre_piso: ''
-                    }))
+                    })).sort((a, b) => String(a.codigo || '').localeCompare(String(b.codigo || ''), 'es', { numeric: true, sensitivity: 'base' }))
                     : [];
             } catch(_){ PRODUCTOS_CACHE = []; }
             return PRODUCTOS_CACHE;
@@ -686,7 +686,7 @@
                     codigo: p.codigo_producto,
                     descripcion: p.descripcion || p.nombre_producto || '',
                     unidad: p.unidad_primaria || ''
-                })) : [];
+                })).sort((a, b) => String(a.codigo || '').localeCompare(String(b.codigo || ''), 'es', { numeric: true, sensitivity: 'base' })) : [];
                 render();
             } catch(_){ estado.textContent = 'Error al cargar'; cuerpo.innerHTML=''; }
         }
