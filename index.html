@@ -288,10 +288,23 @@
     <script src="script.js"></script>
     <script>
     const APP_ADMIN_KEY = 'PASANTIAS90';
-    const APP_DEFAULT_BACKEND_URL = 'https://prueba-empaquetadobackend.onrender.com';
+    const APP_DEFAULT_BACKEND_URL = 'https://prueba-empaquetadobackend-1.onrender.com';
+    const APP_LEGACY_BACKEND_URL = 'https://prueba-empaquetadobackend.onrender.com';
+
+    function normalizeAppBackendUrl(url){
+        const value = String(url || '').trim().replace(/\/+$/,'');
+        if(!value) return '';
+        if(value === APP_LEGACY_BACKEND_URL) return APP_DEFAULT_BACKEND_URL;
+        return value;
+    }
 
     function getBaseUrl(){
-        return (localStorage.getItem('BACKEND_URL') || '').trim() || APP_DEFAULT_BACKEND_URL;
+        const raw = localStorage.getItem('BACKEND_URL') || '';
+        const normalized = normalizeAppBackendUrl(raw);
+        if(raw && normalized !== String(raw).trim()){
+            try { localStorage.setItem('BACKEND_URL', normalized); } catch(_) {}
+        }
+        return normalized || APP_DEFAULT_BACKEND_URL;
     }
 
     function showPage(page) {
@@ -369,7 +382,7 @@
         ocultarBloqueURL();
     }
     function cargarURL(){
-        const saved = localStorage.getItem('BACKEND_URL');
+        const saved = normalizeAppBackendUrl(localStorage.getItem('BACKEND_URL'));
         const input = document.getElementById('input-backend');
         if (input) input.value = saved && saved.trim() ? saved.trim() : APP_DEFAULT_BACKEND_URL;
     }
@@ -401,14 +414,14 @@
         const input = document.getElementById('input-backend');
         const url = input.value.trim();
         if(!url){ mostrarResultado('Ingresa una URL válida', false); return; }
-        localStorage.setItem('BACKEND_URL', url.replace(/\/+$/,''));
+        localStorage.setItem('BACKEND_URL', normalizeAppBackendUrl(url));
         mostrarResultado('URL guardada', true);
     }
     function probarConexion(){
         const blockVisible = document.getElementById('url-block').style.display!=='none';
         let url = '';
         if(blockVisible){ url = document.getElementById('input-backend').value.trim(); }
-        if(!url){ url = (localStorage.getItem('BACKEND_URL')||'').trim(); }
+        if(!url){ url = normalizeAppBackendUrl(localStorage.getItem('BACKEND_URL')); }
         if(!url){ url = APP_DEFAULT_BACKEND_URL; }
         if(!url){ mostrarResultado('No hay URL: desbloquea y guarda primero', false); return; }
         const pingUrl = url.replace(/\/+$/,'') + '/health';

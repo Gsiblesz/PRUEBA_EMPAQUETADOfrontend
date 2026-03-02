@@ -4,8 +4,8 @@ Sitio estático para desplegar en Vercel.
 
 ## Variables y configuración
 
-El frontend usa la URL del backend guardada en `localStorage` (`BACKEND_URL`) desde `menu.html` > Ajustes.
-Si no existe, usa el fallback en el código (`https://prueba-empaquetadobackend.onrender.com`).
+El frontend usa la URL del backend guardada en `localStorage` (`BACKEND_URL`) desde la sección **Configuración** en `index.html`.
+Si no existe, usa el fallback en el código (`https://prueba-empaquetadobackend-1.onrender.com`).
 
 ## Deploy en Vercel
 
@@ -15,4 +15,4 @@ Si no existe, usa el fallback en el código (`https://prueba-empaquetadobackend.
 4. Output Directory: vacío.
 5. Deploy.
 
-`vercel.json` redirige `/` a `menu.html`.
+`vercel.json` redirige `/` a `index.html`.

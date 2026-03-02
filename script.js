@@ -1,7 +1,19 @@
-const DEFAULT_BACKEND_URL = "https://prueba-empaquetadobackend.onrender.com";
+const DEFAULT_BACKEND_URL = "https://prueba-empaquetadobackend-1.onrender.com";
+const LEGACY_BACKEND_URL = "https://prueba-empaquetadobackend.onrender.com";
+
+function normalizeBackendUrl(url) {
+    const value = String(url || '').trim().replace(/\/+$/, '');
+    if (!value) return '';
+    if (value === LEGACY_BACKEND_URL) return DEFAULT_BACKEND_URL;
+    return value;
+}
 
 function getBackendUrl() {
-    const stored = (localStorage.getItem('BACKEND_URL') || '').trim();
+    const storedRaw = localStorage.getItem('BACKEND_URL') || '';
+    const stored = normalizeBackendUrl(storedRaw);
+    if (storedRaw && stored !== storedRaw.trim()) {
+        try { localStorage.setItem('BACKEND_URL', stored); } catch (_) {}
+    }
     return stored || DEFAULT_BACKEND_URL;
 }
 
