@@ -49,16 +49,13 @@
                 <input id="input-key" type="password" placeholder="Ingresa la clave" style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid #444; background:#23263a; color:#fff;">
                 <button class="footer-btn" style="padding:10px 12px; font-size:0.8rem; background:#ffb347; color:#23263a; width:max-content;" onclick="desbloquearURL()">Desbloquear URL</button>
                 <div id="url-block" style="display:none; flex-direction:column; gap:8px;">
-                    <label style="font-size:0.9rem; color:#bfc8e2;">URL Backend (Render):</label>
-                    <input id="input-backend" type="url" placeholder="https://tu-backend.onrender.com" style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid #444; background:#23263a; color:#fff;">
                     <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                        <button class="footer-btn" style="padding:10px 12px; font-size:0.8rem;" onclick="guardarURL()">Guardar URL</button>
                         <button class="footer-btn" style="padding:10px 12px; font-size:0.8rem; background:#2196f3;" onclick="probarConexion()">Probar conexión</button>
                     </div>
                 </div>
                 <button class="footer-btn" style="padding:10px 16px; font-size:0.9rem; background:#43e6b1; color:#23263a;" onclick="cerrarAjustes()">Cerrar</button>
                 <div id="resultado-prueba" style="margin-top:4px; font-size:0.85rem;"></div>
-                <p style="margin-top:8px; font-size:0.7rem; opacity:0.7;">La URL se guarda en localStorage y se aplica al cargar los formularios. La clave solo desbloquea la visibilidad.</p>
+                <p style="margin-top:8px; font-size:0.7rem; opacity:0.7;">La clave solo desbloquea la visibilidad de configuración y se mantiene el backend por defecto configurado.</p>
             </div>
         </div>
     </section>
@@ -267,7 +264,16 @@
                             <option>50</option>
                         </select>
                     </div>
+                    <div class="reg-card">
+                        <label style="margin:0; color:#bfc8e2; font-size:.92rem;">Mes</label>
+                        <input id="reg-month" type="month" />
+                    </div>
+                    <div class="reg-card">
+                        <label style="margin:0; color:#bfc8e2; font-size:.92rem;">Fecha</label>
+                        <input id="reg-date" type="date" />
+                    </div>
                     <button id="btn-actualizar" class="btn-small">Actualizar</button>
+                    <button id="btn-limpiar-filtros" class="btn-small secondary">Limpiar filtros</button>
                     <button id="btn-probar" class="btn-small secondary">Probar conexión</button>
                     <input id="reg-search" type="text" placeholder="Buscar en registros..." style="min-width:260px;" />
                 </div>
@@ -381,11 +387,6 @@
         document.getElementById('input-key').value='';
         ocultarBloqueURL();
     }
-    function cargarURL(){
-        const saved = normalizeAppBackendUrl(localStorage.getItem('BACKEND_URL'));
-        const input = document.getElementById('input-backend');
-        if (input) input.value = saved && saved.trim() ? saved.trim() : APP_DEFAULT_BACKEND_URL;
-    }
     function ocultarBloqueURL(){ const b=document.getElementById('url-block'); if(b) b.style.display='none'; }
     function desbloquearURL(){
         const keyIn = document.getElementById('input-key');
@@ -394,7 +395,6 @@
         if(key !== APP_ADMIN_KEY){ mostrarResultado('Clave incorrecta', false); return; }
         const block = document.getElementById('url-block');
         block.style.display='flex';
-        cargarURL();
         mostrarResultado('Bloque desbloqueado', true);
         try { sessionStorage.setItem('ADMIN_UNLOCKED','1'); } catch(_) {}
         try {
@@ -408,22 +408,11 @@
             }
         } catch(_) {}
     }
-    function guardarURL(){
-        const block = document.getElementById('url-block');
-        if(block.style.display==='none'){ mostrarResultado('Primero desbloquea con la clave', false); return; }
-        const input = document.getElementById('input-backend');
-        const url = input.value.trim();
-        if(!url){ mostrarResultado('Ingresa una URL válida', false); return; }
-        localStorage.setItem('BACKEND_URL', normalizeAppBackendUrl(url));
-        mostrarResultado('URL guardada', true);
-    }
     function probarConexion(){
         const blockVisible = document.getElementById('url-block').style.display!=='none';
-        let url = '';
-        if(blockVisible){ url = document.getElementById('input-backend').value.trim(); }
-        if(!url){ url = normalizeAppBackendUrl(localStorage.getItem('BACKEND_URL')); }
-        if(!url){ url = APP_DEFAULT_BACKEND_URL; }
-        if(!url){ mostrarResultado('No hay URL: desbloquea y guarda primero', false); return; }
+        if(!blockVisible){ mostrarResultado('Primero desbloquea la configuración', false); return; }
+        const url = getBaseUrl();
+        if(!url){ mostrarResultado('No hay backend configurado', false); return; }
         const pingUrl = url.replace(/\/+$/,'') + '/health';
         mostrarResultado('Probando...', true);
         fetch(pingUrl, { method:'GET', cache:'no-store' })
@@ -585,11 +574,15 @@
                             data-sobre-piso="${p.sobre_piso || ''}"
                             name="qty_${p.codigo}">
                         ${isMerma ? '' : '<span class="cestas-est" aria-live="polite"></span>'}
-                        ${isMerma ? `<select class="merma-motivo select" style="min-width:210px;">${opcionesMotivoHTML()}</select><input type="text" class="merma-lote" placeholder="Lote" style="min-width:120px;"/>` : `<input type="text" class="empa-lote" placeholder="Lote" style="min-width:140px;"/>`}
+                        ${isMerma ? `<select class="merma-motivo select" style="min-width:210px;">${opcionesMotivoHTML()}</select><input type="text" class="merma-lote" placeholder="Lote" style="min-width:120px;"/>` : `<input type="text" class="empa-lote" placeholder="Lote" style="min-width:140px;" maxlength="10"/>`}
                         <button type="button" class="remove-sel">✕</button>
                     </div>`;
                 row.querySelector('.remove-sel').addEventListener('click', ()=>row.remove());
                 contSel.appendChild(row);
+                if(!isMerma){
+                    const loteInput = row.querySelector('.empa-lote');
+                    bindEmpaLoteInput(loteInput);
+                }
                 close();
             }
             return { render, open, close, buscar };
@@ -603,12 +596,41 @@
             }
             return dateValue.replace(/[^0-9]/g,'');
         }
-        function buildEmpaLote(){
+        function getEmpaLotePrefix(){
             const fechaVal = document.getElementById('empa-fecha') ? document.getElementById('empa-fecha').value : '';
-            const maq = document.getElementById('empa-maquina') ? document.getElementById('empa-maquina').value.trim() : '';
             const fecha = formatDateForLote(fechaVal);
             if(!fecha) return '';
-            return `BC${fecha}${maq}`;
+            return `BC${fecha}`;
+        }
+        function getEmpaLoteSuffix(){
+            const maqRaw = document.getElementById('empa-maquina') ? document.getElementById('empa-maquina').value : '';
+            const maq = String(maqRaw || '').replace(/[^0-9A-Za-z]/g,'').slice(-2).toUpperCase();
+            return maq ? maq.padStart(2,'0') : '00';
+        }
+        function applyEmpaLoteToInput(input, preserveCurrentSuffix){
+            if(!input) return;
+            const prefix = getEmpaLotePrefix();
+            if(!prefix) return;
+            const current = String(input.value || '').trim().toUpperCase().replace(/\s+/g,'');
+            let suffix = preserveCurrentSuffix ? current.slice(-2) : '';
+            suffix = String(suffix || '').replace(/[^0-9A-Z]/g,'');
+            if(!suffix) suffix = getEmpaLoteSuffix();
+            input.value = `${prefix}${suffix}`;
+        }
+        function bindEmpaLoteInput(input){
+            if(!input || input.dataset.bound === '1') return;
+            input.dataset.bound = '1';
+            input.dataset.auto = '1';
+            applyEmpaLoteToInput(input, false);
+            input.addEventListener('input', ()=>{
+                input.dataset.auto = '0';
+                applyEmpaLoteToInput(input, true);
+            });
+        }
+        function buildEmpaLote(){
+            const prefix = getEmpaLotePrefix();
+            if(!prefix) return '';
+            return `${prefix}${getEmpaLoteSuffix()}`;
         }
         function buildMermaLote(){
             const fechaVal = document.getElementById('merma-fecha') ? document.getElementById('merma-fecha').value : '';
@@ -620,6 +642,12 @@
             const preview = document.getElementById('empa-lote-preview');
             const lote = buildEmpaLote();
             if(preview) preview.value = lote ? `Lote: ${lote}` : '';
+            const contSel = document.getElementById('empa-productos-seleccionados');
+            if(!contSel) return;
+            contSel.querySelectorAll('.empa-lote').forEach(input=>{
+                const preserve = input.dataset.auto !== '1';
+                applyEmpaLoteToInput(input, preserve);
+            });
         }
         function updateMermaLotes(){
             const lote = buildMermaLote();
@@ -790,8 +818,16 @@
 
         function getFilteredRows() {
             const term = String(document.getElementById('reg-search')?.value || '').trim().toLowerCase();
-            if (!term) return allRows;
-            return allRows.filter((row) => Object.values(row || {}).some((value) => String(value || '').toLowerCase().includes(term)));
+            const monthValue = String(document.getElementById('reg-month')?.value || '').trim();
+            const dateValue = String(document.getElementById('reg-date')?.value || '').trim();
+
+            return allRows.filter((row) => {
+                const fecha = String(row?.['FECHA'] || '').trim();
+                if (monthValue && (!fecha || !fecha.startsWith(monthValue))) return false;
+                if (dateValue && fecha !== dateValue) return false;
+                if (!term) return true;
+                return Object.values(row || {}).some((value) => String(value || '').toLowerCase().includes(term));
+            });
         }
 
         function repaint() {
@@ -805,6 +841,8 @@
         async function cargar(){
             const selForm = document.getElementById('sel-form').value;
             const limit = parseInt(document.getElementById('sel-limit').value, 10) || 20;
+            const monthValue = String(document.getElementById('reg-month')?.value || '').trim();
+            const dateValue = String(document.getElementById('reg-date')?.value || '').trim();
             const estado = document.getElementById('estado');
             const errBox = document.getElementById('err');
             errBox.style.display='none';
@@ -812,7 +850,10 @@
             estado.textContent = 'Cargando...';
             try{
                 const tipo = selForm === 'Merma' ? 'Merma' : 'Empaquetado';
-                const url = `${getBaseUrl()}/api/registros?tipo=${encodeURIComponent(tipo)}&limit=${encodeURIComponent(limit)}`;
+                const params = new URLSearchParams({ tipo, limit: String(limit) });
+                if(monthValue) params.set('mes', monthValue);
+                if(dateValue) params.set('fecha', dateValue);
+                const url = `${getBaseUrl()}/api/registros?${params.toString()}`;
                 const r = await fetch(url, { method:'GET', cache:'no-store' });
                 if (!r.ok) throw new Error(`HTTP ${r.status}`);
                 const data = await r.json();
@@ -837,7 +878,15 @@
         document.getElementById('btn-actualizar').addEventListener('click', cargar);
         document.getElementById('sel-form').addEventListener('change', cargar);
         document.getElementById('sel-limit').addEventListener('change', cargar);
+        document.getElementById('reg-month').addEventListener('change', cargar);
+        document.getElementById('reg-date').addEventListener('change', cargar);
         document.getElementById('reg-search').addEventListener('input', repaint);
+        document.getElementById('btn-limpiar-filtros').addEventListener('click', ()=>{
+            document.getElementById('reg-month').value = '';
+            document.getElementById('reg-date').value = '';
+            document.getElementById('reg-search').value = '';
+            cargar();
+        });
         document.getElementById('btn-probar').addEventListener('click', async ()=>{
             const estado = document.getElementById('estado');
             const errBox = document.getElementById('err');
