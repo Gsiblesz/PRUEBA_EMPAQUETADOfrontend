@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Prueba de Empaquetado</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+        .app-page { display: none; }
+        .app-page.active { display: block; }
+        .page-shell { width: min(1100px, 94vw); margin: 0 auto; }
+        .registros-wrap { max-width: 1100px; margin: 0 auto; padding: 20px 0 40px; }
+        .reg-toolbar { display:flex; align-items:center; gap:12px; flex-wrap:wrap; justify-content:space-between; margin:18px 0; }
+        .reg-toolbar-left { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+        .reg-card { background:#1a223f; border:1px solid #2b2f45; padding:10px 12px; border-radius:14px; display:flex; gap:8px; align-items:center; color:#dbe2ff; }
+        .reg-status { color:#bfc8e2; font-size:.9rem; }
+        .reg-status .badge { background:#2e8b57; color:white; padding:2px 8px; border-radius:12px; font-size:.75rem; }
+        .reg-error { display:none; background:rgba(255,107,107,.1); border:1px solid rgba(255,107,107,.3); color:#ffdede; padding:10px 12px; border-radius:10px; margin-top:8px; }
+        .reg-table-wrap { background:#171f3a; border:1px solid #2b2f45; border-radius:16px; overflow:hidden; }
+        .reg-table { width:100%; border-collapse:collapse; }
+        .reg-table thead th { background:#2b2f45; text-align:left; font-weight:700; padding:12px 14px; border-bottom:1px solid #2b2f45; position:sticky; top:0; z-index:1; color:#fff; }
+        .reg-table tbody td { padding:10px 14px; border-bottom:1px solid #2b2f45; color:#dbe2ff; }
+        .reg-table tbody tr:hover { background:rgba(66,133,244,.06); }
+    </style>
+</head>
+<body>
+
+    <section id="page-menu" class="app-page active">
+        <div class="menu-page">
+            <div class="brand-corner">
+                <img src="BRAND.svg" alt="Brand" class="brand-logo-large">
+            </div>
+            <h1>Prueba de Empaquetado</h1>
+            <p class="bienvenida">Selecciona el formulario que deseas completar</p>
+            <div class="menu-buttons-horizontal">
+                <a href="#" id="nav-empa" class="menu-btn empa-btn">EMPAQUETADOS</a>
+                <a href="#" id="nav-merma" class="menu-btn merma-btn">MERMA</a>
+            </div>
+            <div class="menu-footer-corner">
+                <a href="#" class="footer-btn ajustes-btn" onclick="toggleAjustes(event)">Ajustes</a>
+                <a href="#" class="footer-btn" style="background:#2196f3;" onclick="openRegistros(event)">Registros</a>
+                <a href="#" class="footer-btn" style="background:#43e6b1; color:#23263a;" onclick="openProductos(event)">Productos</a>
+                <a href="#" class="footer-btn inicio-btn" onclick="showPage('menu')">Inicio</a>
+            </div>
+            <div id="panel-ajustes" class="apps-script-link" style="display:none; flex-direction:column; gap:12px;">
+                <strong>Configuración Backend</strong>
+                <label style="font-size:0.9rem; color:#bfc8e2;">Clave (para desbloquear la URL):</label>
+                <input id="input-key" type="password" placeholder="Ingresa la clave" style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid #444; background:#23263a; color:#fff;">
+                <button class="footer-btn" style="padding:10px 12px; font-size:0.8rem; background:#ffb347; color:#23263a; width:max-content;" onclick="desbloquearURL()">Desbloquear URL</button>
+                <div id="url-block" style="display:none; flex-direction:column; gap:8px;">
+                    <label style="font-size:0.9rem; color:#bfc8e2;">URL Backend (Render):</label>
+                    <input id="input-backend" type="url" placeholder="https://tu-backend.onrender.com" style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid #444; background:#23263a; color:#fff;">
+                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                        <button class="footer-btn" style="padding:10px 12px; font-size:0.8rem;" onclick="guardarURL()">Guardar URL</button>
+                        <button class="footer-btn" style="padding:10px 12px; font-size:0.8rem; background:#2196f3;" onclick="probarConexion()">Probar conexión</button>
+                    </div>
+                </div>
+                <button class="footer-btn" style="padding:10px 16px; font-size:0.9rem; background:#43e6b1; color:#23263a;" onclick="cerrarAjustes()">Cerrar</button>
+                <div id="resultado-prueba" style="margin-top:4px; font-size:0.85rem;"></div>
+                <p style="margin-top:8px; font-size:0.7rem; opacity:0.7;">La URL se guarda en localStorage y se aplica al cargar los formularios. La clave solo desbloquea la visibilidad.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="page-forms" class="app-page">
+        <div class="container page-shell">
+            <h1>Prueba de Empaquetado</h1>
+            <div style="text-align:center; margin-bottom:20px;">
+                <a href="#" class="volver-menu" onclick="showPage('menu'); return false;">&#8592; Volver al menú</a>
+            </div>
+
+            <div class="form-section" id="form-empaquetados" style="display:none;">
+                <h2>EMPAQUETADOS</h2>
+                <form id="empaquetados-form">
+                    <div class="compact-grid">
+                        <div class="field">
+                            <label for="empa-fecha">Fecha:</label>
+                            <div class="inline">
+                                <input type="date" id="empa-fecha" name="fecha" required />
+                                <button type="button" id="empa-btn-fecha-hoy" class="btn-small">Hoy</button>
+                            </div>
+                            <input type="text" id="empa-hora" name="hora" placeholder="Hora" readonly class="hora-input" />
+                        </div>
+                        <div class="field">
+                            <label for="empa-maquina">Máquina (##):</label>
+                            <input type="text" id="empa-maquina" name="maquina" inputmode="numeric" maxlength="2" placeholder="Ej: 01" />
+                            <input type="text" id="empa-lote-preview" placeholder="Lote: BCddmmaa##" readonly class="hora-input" style="width: 100%; margin-top: 6px;" />
+                        </div>
+                        <div class="field">
+                            <label for="empa-entregado">Entregado a:</label>
+                            <select id="empa-entregado" name="entregado" required class="select">
+                                <option value="">Selecciona una opción</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="empa-registro">Número de registro:</label>
+                            <input type="text" id="empa-registro" name="registro" required />
+                        </div>
+                        <div class="field">
+                            <label for="empa-responsable">Responsable:</label>
+                            <select id="empa-responsable" name="responsable" required class="select">
+                                <option value="">Selecciona un responsable</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="empa-sede">Sede:</label>
+                            <select id="empa-sede" name="sede" required class="select">
+                                <option value="">Selecciona una sede</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="productos-section">
+                        <label>Productos y cantidades:</label>
+                        <div id="empa-productos-seleccionados" class="seleccionados"></div>
+                        <div class="agregar-wrapper">
+                            <button type="button" id="empa-btn-agregar-producto" class="btn-small secondary">Agregar producto</button>
+                            <div id="empa-panel-productos" class="panel-productos" style="display:none;">
+                                <input type="text" id="empa-panel-buscar" placeholder="Buscar producto o código" />
+                                <div id="empa-panel-lista" class="panel-lista"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-actions" style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">
+                        <button type="submit">Enviar</button>
+                        <button type="button" class="secondary" onclick="clearForm('empaquetados-form')">Limpiar</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="form-section" id="form-merma" style="display:none;">
+                <h2>MERMA</h2>
+                <form id="merma-form">
+                    <div class="compact-grid">
+                        <div class="field">
+                            <label for="merma-fecha">Fecha:</label>
+                            <div class="inline">
+                                <input type="date" id="merma-fecha" name="fecha" required />
+                                <button type="button" id="merma-btn-fecha-hoy" class="btn-small">Hoy</button>
+                            </div>
+                            <input type="text" id="merma-hora" name="hora" placeholder="Hora" readonly class="hora-input" />
+                        </div>
+                        <div class="field">
+                            <label for="merma-sede">Sede:</label>
+                            <select id="merma-sede" name="sede" required class="select">
+                                <option value="">Selecciona una sede</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="merma-responsable">Responsable:</label>
+                            <select id="merma-responsable" name="responsable" required class="select">
+                                <option value="">Selecciona un responsable</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="productos-section">
+                        <label>Productos y cantidades:</label>
+                        <div id="merma-productos-seleccionados" class="seleccionados"></div>
+                        <div class="agregar-wrapper">
+                            <button type="button" id="merma-btn-agregar-producto" class="btn-small secondary">Agregar producto</button>
+                            <div id="merma-panel-productos" class="panel-productos" style="display:none;">
+                                <input type="text" id="merma-panel-buscar" placeholder="Buscar producto o código" />
+                                <div id="merma-panel-lista" class="panel-lista"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-actions" style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">
+                        <button type="submit">Enviar</button>
+                        <button type="button" class="secondary" onclick="clearForm('merma-form')">Limpiar</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="confirmacion-modal" class="confirm-modal" aria-hidden="true">
+                <div class="confirm-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="confirm-titulo">
+                    <h3 id="confirm-titulo">Verifica la información antes de enviar</h3>
+                    <div id="confirm-meta" class="confirm-meta"></div>
+                    <div class="confirm-table-wrap">
+                        <table class="confirm-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Código</th>
+                                    <th>Producto</th>
+                                    <th>Cantidad</th>
+                                    <th>Lote</th>
+                                    <th>Motivo</th>
+                                </tr>
+                            </thead>
+                            <tbody id="confirm-productos-body"></tbody>
+                        </table>
+                    </div>
+                    <label class="confirm-check">
+                        <input type="checkbox" id="confirm-check" />
+                        Confirmo que cantidades, lotes y productos están correctos.
+                    </label>
+                    <div class="confirm-actions">
+                        <button type="button" id="confirm-editar" class="secondary">Editar</button>
+                        <button type="button" id="confirm-enviar" disabled>Confirmar envío</button>
+                    </div>
+                </div>
+            </div>
+            <div id="mensaje"></div>
+        </div>
+    </section>
+
+    <section id="page-productos" class="app-page">
+        <div class="container productos-admin">
+            <h1>Catálogo de Productos</h1>
+            <div style="text-align:center; margin-bottom:24px;">
+                <a href="#" class="volver-menu" onclick="showPage('menu'); return false;">&#8592; Volver al menú</a>
+            </div>
+            <div class="productos-actions">
+                <button id="btn-refrescar" class="btn-small" style="width:auto;">Refrescar lista</button>
+                <button id="btn-toggle-nuevo" class="btn-small" style="width:auto;">Agregar nuevo</button>
+                <input type="text" id="buscar" placeholder="Buscar código o descripción" style="margin-left:8px; flex:1; min-width:220px;" />
+            </div>
+            <div id="nuevo-form" style="display:none;" class="nuevo-form">
+                <h3>Nuevo Producto</h3>
+                <div class="inline" style="gap:8px; flex-wrap:wrap;">
+                    <input type="text" id="p-codigo" placeholder="Código" />
+                    <input type="text" id="p-desc" placeholder="Descripción" />
+                    <select id="p-unidad">
+                        <option value="PAQ">PAQ</option>
+                        <option value="UND">UND</option>
+                    </select>
+                    <button type="button" id="p-guardar" class="btn-small">Guardar</button>
+                </div>
+                <small id="p-msg"></small>
+            </div>
+            <div class="tabla-wrapper">
+                <table id="tabla-productos" class="tabla-productos">
+                    <thead>
+                        <tr><th>Código</th><th>Descripción</th><th>Unidad</th><th>Acciones</th></tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div id="estado-carga" class="estado-carga"></div>
+        </div>
+    </section>
+
+    <section id="page-registros" class="app-page">
+        <div class="container registros-wrap">
+            <div class="page-head" style="text-align:center; margin: 6px 0 18px;">
+                <h1>Registros recientes</h1>
+                <div style="color:#bfc8e2; font-size:.95rem;">Consulta las últimas filas guardadas desde Empaquetados o Merma</div>
+                <div style="margin-top:10px;">
+                    <a href="#" class="volver-menu" onclick="showPage('menu'); return false;">&#8592; Volver al menú</a>
+                </div>
+            </div>
+
+            <div class="reg-toolbar">
+                <div class="reg-toolbar-left">
+                    <div class="reg-card">
+                        <label style="margin:0; color:#bfc8e2; font-size:.92rem;">Formulario</label>
+                        <select id="sel-form">
+                            <option value="Empaquetado">Empaquetados</option>
+                            <option value="Merma">Merma</option>
+                        </select>
+                    </div>
+                    <div class="reg-card">
+                        <label style="margin:0; color:#bfc8e2; font-size:.92rem;">Límite</label>
+                        <select id="sel-limit">
+                            <option>10</option>
+                            <option selected>20</option>
+                            <option>50</option>
+                        </select>
+                    </div>
+                    <button id="btn-actualizar" class="btn-small">Actualizar</button>
+                    <button id="btn-probar" class="btn-small secondary">Probar conexión</button>
+                </div>
+                <div class="reg-status" id="estado"></div>
+            </div>
+
+            <div id="err" class="reg-error"></div>
+
+            <div class="reg-table-wrap">
+                <table id="tabla" class="reg-table">
+                    <thead></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <script src="script.js"></script>
+    <script>
+    const ADMIN_KEY = 'PASANTIAS90';
+    const DEFAULT_BACKEND_URL = 'https://prueba-empaquetadobackend.onrender.com';
+
+    function getBaseUrl(){
+        return (localStorage.getItem('BACKEND_URL') || '').trim() || DEFAULT_BACKEND_URL;
+    }
+
+    function showPage(page) {
+        document.querySelectorAll('.app-page').forEach(el => el.classList.remove('active'));
+        const target = document.getElementById(`page-${page}`);
+        if (target) target.classList.add('active');
+        if (page === 'registros' && window.__loadRegistros) window.__loadRegistros();
+        if (page === 'productos' && window.__loadProductos) window.__loadProductos();
+    }
+
+    function setFormTab(tab) {
+        const empaDiv = document.getElementById('form-empaquetados');
+        const mermaDiv = document.getElementById('form-merma');
+        if (!empaDiv || !mermaDiv) return;
+        if (tab === 'merma') {
+            empaDiv.style.display = 'none';
+            mermaDiv.style.display = '';
+        } else {
+            empaDiv.style.display = '';
+            mermaDiv.style.display = 'none';
+        }
+    }
+
+    document.getElementById('nav-empa').addEventListener('click', function(e){
+        e.preventDefault();
+        setFormTab('empaquetados');
+        showPage('forms');
+    });
+    document.getElementById('nav-merma').addEventListener('click', function(e){
+        e.preventDefault();
+        setFormTab('merma');
+        showPage('forms');
+    });
+
+    function isAdminUnlocked(){ try { return sessionStorage.getItem('ADMIN_UNLOCKED') === '1'; } catch(_) { return false; } }
+    function openProductos(e){
+        e.preventDefault();
+        if(isAdminUnlocked()) { showPage('productos'); return; }
+        const p = document.getElementById('panel-ajustes');
+        p.style.display = 'flex';
+        const res = document.getElementById('resultado-prueba');
+        res.textContent = 'Ingresa la clave para acceder a Productos';
+        res.style.color = '#ffb347';
+        try { sessionStorage.setItem('GOTO_PRODUCTOS','1'); } catch(_) {}
+        const keyInput = document.getElementById('input-key');
+        if(keyInput) keyInput.focus();
+    }
+    function openRegistros(e){
+        e.preventDefault();
+        if(isAdminUnlocked()) { showPage('registros'); return; }
+        const p = document.getElementById('panel-ajustes');
+        p.style.display = 'flex';
+        const res = document.getElementById('resultado-prueba');
+        res.textContent = 'Ingresa la clave para acceder a Registros';
+        res.style.color = '#ffb347';
+        try { sessionStorage.setItem('GOTO_REGISTROS','1'); } catch(_) {}
+        const keyInput = document.getElementById('input-key');
+        if(keyInput) keyInput.focus();
+    }
+    function toggleAjustes(e){
+        e.preventDefault();
+        const p=document.getElementById('panel-ajustes');
+        const wasHidden = p.style.display==='none';
+        p.style.display = wasHidden?'flex':'none';
+        if(wasHidden){
+            document.getElementById('input-key').value='';
+            document.getElementById('resultado-prueba').textContent='';
+            ocultarBloqueURL();
+        }
+    }
+    function cerrarAjustes(){
+        document.getElementById('panel-ajustes').style.display='none';
+        document.getElementById('input-key').value='';
+        ocultarBloqueURL();
+    }
+    function cargarURL(){
+        const saved = localStorage.getItem('BACKEND_URL');
+        const input = document.getElementById('input-backend');
+        if (input) input.value = saved && saved.trim() ? saved.trim() : DEFAULT_BACKEND_URL;
+    }
+    function ocultarBloqueURL(){ const b=document.getElementById('url-block'); if(b) b.style.display='none'; }
+    function desbloquearURL(){
+        const keyIn = document.getElementById('input-key');
+        const key = (keyIn.value||'').trim();
+        if(!key){ mostrarResultado('Ingresa la clave', false); return; }
+        if(key !== ADMIN_KEY){ mostrarResultado('Clave incorrecta', false); return; }
+        const block = document.getElementById('url-block');
+        block.style.display='flex';
+        cargarURL();
+        mostrarResultado('Bloque desbloqueado', true);
+        try { sessionStorage.setItem('ADMIN_UNLOCKED','1'); } catch(_) {}
+        try {
+            if(sessionStorage.getItem('GOTO_PRODUCTOS') === '1'){
+                sessionStorage.removeItem('GOTO_PRODUCTOS');
+                showPage('productos');
+            }
+            if(sessionStorage.getItem('GOTO_REGISTROS') === '1'){
+                sessionStorage.removeItem('GOTO_REGISTROS');
+                showPage('registros');
+            }
+        } catch(_) {}
+    }
+    function guardarURL(){
+        const block = document.getElementById('url-block');
+        if(block.style.display==='none'){ mostrarResultado('Primero desbloquea con la clave', false); return; }
+        const input = document.getElementById('input-backend');
+        const url = input.value.trim();
+        if(!url){ mostrarResultado('Ingresa una URL válida', false); return; }
+        localStorage.setItem('BACKEND_URL', url.replace(/\/+$/,''));
+        mostrarResultado('URL guardada', true);
+    }
+    function probarConexion(){
+        const blockVisible = document.getElementById('url-block').style.display!=='none';
+        let url = '';
+        if(blockVisible){ url = document.getElementById('input-backend').value.trim(); }
+        if(!url){ url = (localStorage.getItem('BACKEND_URL')||'').trim(); }
+        if(!url){ url = DEFAULT_BACKEND_URL; }
+        if(!url){ mostrarResultado('No hay URL: desbloquea y guarda primero', false); return; }
+        const pingUrl = url.replace(/\/+$/,'') + '/health';
+        mostrarResultado('Probando...', true);
+        fetch(pingUrl, { method:'GET', cache:'no-store' })
+            .then(r=> r.text())
+            .then(t=>{
+                try{
+                    const j=JSON.parse(t);
+                    if(j.ok || j.status === 'healthy'){ mostrarResultado('Conexión OK', true); }
+                    else { mostrarResultado('Respuesta recibida pero ok=false', false); }
+                }catch(_){
+                    mostrarResultado('Conexión recibida (formato no JSON)', true);
+                }
+            })
+            .catch(_=> {
+                mostrarResultado('No se pudo conectar. Verifica la URL del backend.', false);
+            });
+    }
+    function mostrarResultado(msg, ok){ const el=document.getElementById('resultado-prueba'); el.textContent=msg; el.style.color= ok?'#43e6b1':'#ff7675'; }
+
+    (function(){
+        let PRODUCTOS_CACHE = [];
+
+        async function populateSelect(elementId, endpoint, valueField, nameField, nameField2) {
+            const select = document.getElementById(elementId);
+            if (!select) return;
+            try {
+                const url = `${getBaseUrl()}${endpoint}`;
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const data = await response.json();
+                select.innerHTML = '<option value="">Selecciona una opción</option>';
+                data.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item[valueField];
+                    option.textContent = nameField2 ? `${item[nameField]} ${item[nameField2]}` : item[nameField];
+                    select.appendChild(option);
+                });
+            } catch (_) {
+                const option = document.createElement('option');
+                option.textContent = 'Error al cargar';
+                option.disabled = true;
+                select.appendChild(option);
+            }
+        }
+
+        function opcionesMotivoHTML(){
+            return `
+                <option value="">Motivo…</option>
+                <option>MANCHADOS</option>
+                <option>ERROR DE PROCESO</option>
+                <option>MAL FORMADO (HORNEADO)</option>
+                <option>QUEMADO</option>
+                <option>APLASTADOS</option>
+                <option>ROTOS</option>
+                <option>CAIDOS AL PISO</option>
+                <option>FERMENTADO</option>
+                <option>ALVEOLO</option>
+                <option>CRUDO</option>
+                <option>MAL FORMADO (BOLEADO)</option>
+                <option>MAL CORTE</option>
+                <option>OTROS</option>
+                <option>ADHERIDO A LA BANDEJA</option>
+                <option>DESMOLDADO</option>
+                <option>SOBRANTE BUEN ESTADO</option>
+                <option>MASA DE DESCARTE</option>
+                <option>PEQUEÑOS EN TAMAÑO</option>
+                <option>VIRUTA</option>
+                <option>SOBREPASA EL TAMAÑO ADECUADO</option>
+                <option>ADHERIDO AL MOLDE</option>`;
+        }
+
+        async function cargarProductos(){
+            if(PRODUCTOS_CACHE.length) return PRODUCTOS_CACHE;
+            const url = `${getBaseUrl()}/productos`;
+            try {
+                const r = await fetch(url, {method:'GET', cache:'no-store'});
+                const products = await r.json();
+                PRODUCTOS_CACHE = Array.isArray(products)
+                    ? products.map(p=>({
+                        id: p.id_producto,
+                        codigo: String((p && p.codigo_producto) || '').trim(),
+                        desc: String((p && p.nombre_producto) || '').trim(),
+                        paquetes: String((p && p.paquetes_por_cesta) || '').trim(),
+                        unidad: '', 
+                        sobre_piso: ''
+                    }))
+                    : [];
+            } catch(_){ PRODUCTOS_CACHE = []; }
+            return PRODUCTOS_CACHE;
+        }
+
+        function setFechaHoy(prefix){
+            const fecha = document.getElementById(prefix+'-fecha');
+            const hora = document.getElementById(prefix+'-hora');
+            if(!fecha) return;
+            const now = new Date();
+            const vz = new Date(now.toLocaleString('en-US',{timeZone:'America/Caracas'}));
+            const yyyy = vz.getFullYear();
+            const mm = String(vz.getMonth()+1).padStart(2,'0');
+            const dd = String(vz.getDate()).padStart(2,'0');
+            fecha.value = `${yyyy}-${mm}-${dd}`;
+            if(hora){
+                const hh = String(vz.getHours()).padStart(2,'0');
+                const min = String(vz.getMinutes()).padStart(2,'0');
+                hora.value = `${hh}:${min}`;
+            }
+        }
+
+        function initFecha(prefix){
+            const btn = document.getElementById(prefix+'-btn-fecha-hoy');
+            if(!btn) return;
+            btn.addEventListener('click', ()=>{
+                setFechaHoy(prefix);
+                if(prefix === 'merma') updateMermaLotes();
+                if(prefix === 'empa') updateEmpaLotes();
+            });
+        }
+
+        function initPanel(prefix){
+            const panel = document.getElementById(prefix+'-panel-productos');
+            const buscar = document.getElementById(prefix+'-panel-buscar');
+            const lista = document.getElementById(prefix+'-panel-lista');
+            const btn = document.getElementById(prefix+'-btn-agregar-producto');
+            const contSel = document.getElementById(prefix+'-productos-seleccionados');
+            if(!panel||!buscar||!lista||!btn||!contSel) return;
+            const isMerma = prefix === 'merma';
+            function render(term=''){
+                const t = term.trim().toLowerCase();
+                lista.innerHTML='';
+                const datos = t? PRODUCTOS_CACHE.filter(p=>p.codigo.toLowerCase().includes(t)||p.desc.toLowerCase().includes(t)) : PRODUCTOS_CACHE;
+                datos.forEach(p=>{
+                    const div = document.createElement('div');
+                    div.className='panel-item';
+                    div.innerHTML = `<strong>${p.codigo}</strong> — ${p.desc}`;
+                    div.addEventListener('click',()=>addProducto(p));
+                    lista.appendChild(div);
+                });
+            }
+            function open(){ panel.style.display='block'; buscar.value=''; render(''); buscar.focus(); }
+            function close(){ panel.style.display='none'; }
+            btn.addEventListener('click', ()=>{ panel.style.display==='none'?open():close(); });
+            document.addEventListener('click', e=>{ if(!panel.contains(e.target) && e.target!==btn) close(); });
+            document.addEventListener('keydown', e=>{ if(e.key==='Escape') close(); });
+            buscar.addEventListener('input', ()=>render(buscar.value));
+            function addProducto(p){
+                const row = document.createElement('div');
+                row.className='sel-row producto-line';
+                row.dataset.codigo = p.codigo;
+                row.dataset.id_producto = p.id;
+                row.innerHTML = `
+                    <div class="prod-name"><strong>${p.codigo}</strong> — ${p.desc}</div>
+                    <div class="qty-actions" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                        <input type="number" min="1" step="1" class="prod-qty" placeholder="0"
+                            data-codigo="${p.codigo}"
+                            data-id_producto="${p.id}"
+                            data-desc="${(p.desc||'').replace(/"/g,'&quot;')}"
+                            data-unidad="${p.unidad}"
+                            data-paquetes="${p.paquetes || ''}"
+                            data-sobre-piso="${p.sobre_piso || ''}"
+                            name="qty_${p.codigo}">
+                        ${isMerma ? '' : '<span class="cestas-est" aria-live="polite"></span>'}
+                        ${isMerma ? `<select class="merma-motivo select" style="min-width:210px;">${opcionesMotivoHTML()}</select><input type="text" class="merma-lote" placeholder="Lote" style="min-width:120px;"/>` : `<input type="text" class="empa-lote" placeholder="Lote" style="min-width:140px;"/>`}
+                        <button type="button" class="remove-sel">✕</button>
+                    </div>`;
+                row.querySelector('.remove-sel').addEventListener('click', ()=>row.remove());
+                contSel.appendChild(row);
+                close();
+            }
+            return { render, open, close, buscar };
+        }
+
+        function formatDateForLote(dateValue){
+            if(!dateValue) return '';
+            if(/^\d{4}-\d{2}-\d{2}$/.test(dateValue)){
+                const [y,m,d] = dateValue.split('-');
+                return `${d}${m}${y.slice(2)}`;
+            }
+            return dateValue.replace(/[^0-9]/g,'');
+        }
+        function buildEmpaLote(){
+            const fechaVal = document.getElementById('empa-fecha') ? document.getElementById('empa-fecha').value : '';
+            const maq = document.getElementById('empa-maquina') ? document.getElementById('empa-maquina').value.trim() : '';
+            const fecha = formatDateForLote(fechaVal);
+            if(!fecha) return '';
+            return `BC${fecha}${maq}`;
+        }
+        function buildMermaLote(){
+            const fechaVal = document.getElementById('merma-fecha') ? document.getElementById('merma-fecha').value : '';
+            const fecha = formatDateForLote(fechaVal);
+            if(!fecha) return '';
+            return `BC${fecha}`;
+        }
+        function updateEmpaLotes(){
+            const preview = document.getElementById('empa-lote-preview');
+            const lote = buildEmpaLote();
+            if(preview) preview.value = lote ? `Lote: ${lote}` : '';
+        }
+        function updateMermaLotes(){
+            const lote = buildMermaLote();
+            const contSel = document.getElementById('merma-productos-seleccionados');
+            if(!contSel) return;
+            contSel.querySelectorAll('.merma-lote').forEach(input=>{
+                if(input.dataset.auto === '1' || !input.value){
+                    if(lote) { input.value = lote; input.dataset.auto = '1'; }
+                }
+            });
+        }
+
+        async function refreshPanels(){
+            await cargarProductos();
+            if(window.__empaPanel) window.__empaPanel.render(window.__empaPanel.buscar.value);
+            if(window.__mermaPanel) window.__mermaPanel.render(window.__mermaPanel.buscar.value);
+        }
+
+        document.addEventListener('DOMContentLoaded', async ()=>{
+            showPage('menu');
+            setFormTab('empaquetados');
+            initFecha('empa');
+            initFecha('merma');
+            window.__empaPanel = initPanel('empa');
+            window.__mermaPanel = initPanel('merma');
+
+            populateSelect('empa-responsable', '/responsables', 'id_responsable', 'nombre_completo');
+            populateSelect('merma-responsable', '/responsables', 'id_responsable', 'nombre_completo');
+            populateSelect('empa-sede', '/sedes', 'id_sede', 'nombre');
+            populateSelect('merma-sede', '/sedes', 'id_sede', 'nombre');
+            populateSelect('empa-entregado', '/destinos', 'id_destino', 'nombre');
+
+            await refreshPanels();
+            const fechaEmpa = document.getElementById('empa-fecha');
+            const maqEmpa = document.getElementById('empa-maquina');
+            const fechaMerma = document.getElementById('merma-fecha');
+            if(fechaEmpa) fechaEmpa.addEventListener('change', updateEmpaLotes);
+            if(maqEmpa) maqEmpa.addEventListener('input', updateEmpaLotes);
+            if(fechaMerma) fechaMerma.addEventListener('change', updateMermaLotes);
+            updateEmpaLotes();
+            updateMermaLotes();
+        });
+    })();
+
+    (function(){
+        const ADMIN_KEY = 'PASANTIAS90';
+        let cache = [];
+        let filtro = '';
+        const cuerpo = document.querySelector('#tabla-productos tbody');
+        const estado = document.getElementById('estado-carga');
+        function endpointProductos(){ return `${getBaseUrl()}/productos`; }
+        function endpointAdd(){ return `${getBaseUrl()}/productos`; }
+        function endpointDelete(codigo){ return `${getBaseUrl()}/productos/${encodeURIComponent(codigo)}`; }
+
+        async function cargar(){
+            if (!cuerpo || !estado) return;
+            estado.textContent = 'Cargando...';
+            try {
+                const r = await fetch(endpointProductos(), {method:'GET', cache:'no-store'});
+                const j = await r.json();
+                cache = Array.isArray(j) ? j.map(p => ({
+                    codigo: p.codigo_producto,
+                    descripcion: p.descripcion || p.nombre_producto || '',
+                    unidad: p.unidad_primaria || ''
+                })) : [];
+                render();
+            } catch(_){ estado.textContent = 'Error al cargar'; cuerpo.innerHTML=''; }
+        }
+        function render(){
+            cuerpo.innerHTML = '';
+            const term = filtro.trim().toLowerCase();
+            const data = term
+                ? cache.filter(p => (String(p.codigo||'').toLowerCase().includes(term) || String(p.descripcion||'').toLowerCase().includes(term)))
+                : cache;
+            data.forEach(p => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${p.codigo}</td><td>${p.descripcion||''}</td><td>${p.unidad}</td><td><button class="btn-small danger" data-cod="${p.codigo}">Eliminar</button></td>`;
+                tr.querySelector('button[data-cod]').addEventListener('click', ()=> eliminar(p.codigo));
+                cuerpo.appendChild(tr);
+            });
+            estado.textContent = `Mostrando ${data.length} de ${cache.length} productos`;
+        }
+        async function eliminar(codigo){
+            if(!codigo) return;
+            if(!confirm(`¿Eliminar el producto "${codigo}" del catálogo?`)) return;
+            estado.textContent = 'Eliminando...';
+            try{
+                const r = await fetch(endpointDelete(codigo), {
+                    method:'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ adminKey: ADMIN_KEY })
+                });
+                const t = await r.text(); let j; try{ j = JSON.parse(t);}catch(_){ j={ok:r.ok}; }
+                if(j.ok){ await cargar(); estado.textContent = 'Producto eliminado'; }
+                else { estado.textContent = 'No se pudo eliminar'; }
+            }catch(_){ estado.textContent = 'Error de conexión'; }
+        }
+        async function guardar(){
+            const codigo = document.getElementById('p-codigo').value.trim();
+            const desc = document.getElementById('p-desc').value.trim();
+            const unidad = document.getElementById('p-unidad').value;
+            const msg = document.getElementById('p-msg');
+            if(!codigo || !desc){ msg.textContent='Completa código y descripción'; return; }
+            if(cache.some(p=> (p.codigo||'').toLowerCase() === codigo.toLowerCase())){ msg.textContent='Ese código ya existe'; return; }
+            msg.textContent='Guardando...';
+            try {
+                const r = await fetch(endpointAdd(), {
+                    method:'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ codigo, descripcion: desc, unidad, adminKey: ADMIN_KEY })
+                });
+                const t = await r.text(); let j; try{ j=JSON.parse(t);}catch(_){ j={ok:r.ok}; }
+                if(j.ok){ msg.textContent='Guardado'; await cargar(); document.getElementById('p-codigo').value=''; document.getElementById('p-desc').value=''; }
+                else { msg.textContent='Error al guardar'; }
+            } catch(_){ msg.textContent='Error de conexión'; }
+        }
+
+        document.getElementById('btn-refrescar').addEventListener('click', cargar);
+        document.getElementById('btn-toggle-nuevo').addEventListener('click', ()=>{
+            const box = document.getElementById('nuevo-form');
+            box.style.display = box.style.display==='none' ? 'block' : 'none';
+        });
+        document.getElementById('buscar').addEventListener('input', (e) => { filtro = e.target.value; render(); });
+        document.getElementById('p-guardar').addEventListener('click', guardar);
+        window.__loadProductos = cargar;
+    })();
+
+    (function(){
+        function normalizeHeaders(headers){
+            return (headers||[]).filter(h => {
+                const txt = String(h||'').trim();
+                if(!txt) return false;
+                if(/^column\s*\d+$/i.test(txt)) return false;
+                return true;
+            });
+        }
+        function fmtValue(val){
+            const tz = 'America/Caracas';
+            const str = String(val||'');
+            if(/\d{4}-\d{2}-\d{2}t\d{2}:\d{2}:\d{2}/i.test(str) || /Z$/.test(str)){
+                const d = new Date(str);
+                if(!isNaN(d.getTime())){
+                    return d.toLocaleString('es-VE', { timeZone: tz, year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', second:'2-digit' });
+                }
+            }
+            return val === undefined || val === null ? '' : val;
+        }
+        function renderTable(headers, rows){
+            const thead = document.querySelector('#tabla thead');
+            const tbody = document.querySelector('#tabla tbody');
+            thead.innerHTML = '';
+            tbody.innerHTML = '';
+            const cleanHeaders = normalizeHeaders(headers);
+            const trh = document.createElement('tr');
+            cleanHeaders.forEach(h=>{ const th=document.createElement('th'); th.textContent=h; trh.appendChild(th); });
+            thead.appendChild(trh);
+            (rows||[]).forEach(obj=>{
+                const tr=document.createElement('tr');
+                cleanHeaders.forEach(h=>{ const td=document.createElement('td'); td.textContent = fmtValue(obj[h]); tr.appendChild(td); });
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function cargar(){
+            const selForm = document.getElementById('sel-form').value;
+            const limit = parseInt(document.getElementById('sel-limit').value, 10) || 20;
+            const estado = document.getElementById('estado');
+            const errBox = document.getElementById('err');
+            errBox.style.display='none';
+            errBox.textContent='';
+            estado.textContent = 'Cargando...';
+            try{
+                const tipo = selForm === 'Merma' ? 'Merma' : 'Empaquetado';
+                const url = `${getBaseUrl()}/api/registros?tipo=${encodeURIComponent(tipo)}&limit=${encodeURIComponent(limit)}`;
+                const r = await fetch(url, { method:'GET', cache:'no-store' });
+                if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                const data = await r.json();
+                if(!data || data.ok !== true){
+                    estado.textContent = 'Error al cargar';
+                    errBox.style.display='block';
+                    errBox.innerHTML = 'No se pudo leer el endpoint de registros del backend.';
+                    return;
+                }
+                renderTable(data.headers, data.rows);
+                const when = new Date().toLocaleString();
+                estado.innerHTML = `Mostrando ${(data.rows?data.rows.length:0)} de ${(data.total||'')} • ${selForm} • <span class="badge">actualizado ${when}</span>`;
+            }catch(err){
+                estado.textContent = 'Error: ' + err.message;
+                errBox.style.display='block';
+                errBox.innerHTML = 'No se pudo conectar. Revisa la URL del backend en Ajustes.';
+            }
+        }
+
+        document.getElementById('btn-actualizar').addEventListener('click', cargar);
+        document.getElementById('sel-form').addEventListener('change', cargar);
+        document.getElementById('sel-limit').addEventListener('change', cargar);
+        document.getElementById('btn-probar').addEventListener('click', async ()=>{
+            const estado = document.getElementById('estado');
+            const errBox = document.getElementById('err');
+            const url = `${getBaseUrl()}/health`;
+            estado.textContent = 'Probando conexión...';
+            errBox.style.display='none';
+            try{
+                const r = await fetch(url, { method:'GET', cache:'no-store' });
+                const t = await r.text();
+                try{ const j = JSON.parse(t); estado.textContent = j && (j.ok || j.status === 'healthy') ? 'Conexión OK' : 'Respuesta recibida'; }
+                catch(_){ estado.textContent = 'Conexión recibida'; }
+            }catch(e){
+                estado.textContent='No se pudo conectar: ' + e.message;
+                errBox.style.display='block';
+                errBox.textContent='Revisa la URL del backend en Ajustes.';
+            }
+        });
+        window.__loadRegistros = cargar;
+    })();
+    </script>
+</body>
+</html>
