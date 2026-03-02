@@ -268,6 +268,7 @@
                     </div>
                     <button id="btn-actualizar" class="btn-small">Actualizar</button>
                     <button id="btn-probar" class="btn-small secondary">Probar conexión</button>
+                    <input id="reg-search" type="text" placeholder="Buscar en registros..." style="min-width:260px;" />
                 </div>
                 <div class="reg-status" id="estado"></div>
             </div>
@@ -285,17 +286,18 @@
 
     <script src="script.js"></script>
     <script>
-    const ADMIN_KEY = 'PASANTIAS90';
-    const DEFAULT_BACKEND_URL = 'https://prueba-empaquetadobackend.onrender.com';
+    const APP_ADMIN_KEY = 'PASANTIAS90';
+    const APP_DEFAULT_BACKEND_URL = 'https://prueba-empaquetadobackend.onrender.com';
 
     function getBaseUrl(){
-        return (localStorage.getItem('BACKEND_URL') || '').trim() || DEFAULT_BACKEND_URL;
+        return (localStorage.getItem('BACKEND_URL') || '').trim() || APP_DEFAULT_BACKEND_URL;
     }
 
     function showPage(page) {
         document.querySelectorAll('.app-page').forEach(el => el.classList.remove('active'));
         const target = document.getElementById(`page-${page}`);
         if (target) target.classList.add('active');
+        try { window.location.hash = page; } catch(_) {}
         if (page === 'registros' && window.__loadRegistros) window.__loadRegistros();
         if (page === 'productos' && window.__loadProductos) window.__loadProductos();
     }
@@ -368,14 +370,14 @@
     function cargarURL(){
         const saved = localStorage.getItem('BACKEND_URL');
         const input = document.getElementById('input-backend');
-        if (input) input.value = saved && saved.trim() ? saved.trim() : DEFAULT_BACKEND_URL;
+        if (input) input.value = saved && saved.trim() ? saved.trim() : APP_DEFAULT_BACKEND_URL;
     }
     function ocultarBloqueURL(){ const b=document.getElementById('url-block'); if(b) b.style.display='none'; }
     function desbloquearURL(){
         const keyIn = document.getElementById('input-key');
         const key = (keyIn.value||'').trim();
         if(!key){ mostrarResultado('Ingresa la clave', false); return; }
-        if(key !== ADMIN_KEY){ mostrarResultado('Clave incorrecta', false); return; }
+        if(key !== APP_ADMIN_KEY){ mostrarResultado('Clave incorrecta', false); return; }
         const block = document.getElementById('url-block');
         block.style.display='flex';
         cargarURL();
@@ -406,7 +408,7 @@
         let url = '';
         if(blockVisible){ url = document.getElementById('input-backend').value.trim(); }
         if(!url){ url = (localStorage.getItem('BACKEND_URL')||'').trim(); }
-        if(!url){ url = DEFAULT_BACKEND_URL; }
+        if(!url){ url = APP_DEFAULT_BACKEND_URL; }
         if(!url){ mostrarResultado('No hay URL: desbloquea y guarda primero', false); return; }
         const pingUrl = url.replace(/\/+$/,'') + '/health';
         mostrarResultado('Probando...', true);
@@ -623,7 +625,9 @@
         }
 
         document.addEventListener('DOMContentLoaded', async ()=>{
-            showPage('menu');
+            const initial = String((window.location.hash || '').replace('#','')).trim().toLowerCase();
+            if (initial === 'menu' || initial === 'forms' || initial === 'productos' || initial === 'registros') showPage(initial);
+            else showPage('menu');
             setFormTab('empaquetados');
             initFecha('empa');
             initFecha('merma');
@@ -732,6 +736,9 @@
     })();
 
     (function(){
+        let allRows = [];
+        let allHeaders = [];
+
         function normalizeHeaders(headers){
             return (headers||[]).filter(h => {
                 const txt = String(h||'').trim();
@@ -767,6 +774,20 @@
             });
         }
 
+        function getFilteredRows() {
+            const term = String(document.getElementById('reg-search')?.value || '').trim().toLowerCase();
+            if (!term) return allRows;
+            return allRows.filter((row) => Object.values(row || {}).some((value) => String(value || '').toLowerCase().includes(term)));
+        }
+
+        function repaint() {
+            const selForm = document.getElementById('sel-form').value;
+            const filteredRows = getFilteredRows();
+            renderTable(allHeaders, filteredRows);
+            const estado = document.getElementById('estado');
+            estado.textContent = `Mostrando ${filteredRows.length} de ${allRows.length} • ${selForm}`;
+        }
+
         async function cargar(){
             const selForm = document.getElementById('sel-form').value;
             const limit = parseInt(document.getElementById('sel-limit').value, 10) || 20;
@@ -787,9 +808,11 @@
                     errBox.innerHTML = 'No se pudo leer el endpoint de registros del backend.';
                     return;
                 }
-                renderTable(data.headers, data.rows);
+                allHeaders = Array.isArray(data.headers) ? data.headers : [];
+                allRows = Array.isArray(data.rows) ? data.rows : [];
+                repaint();
                 const when = new Date().toLocaleString();
-                estado.innerHTML = `Mostrando ${(data.rows?data.rows.length:0)} de ${(data.total||'')} • ${selForm} • <span class="badge">actualizado ${when}</span>`;
+                estado.innerHTML = `${estado.textContent} • <span class="badge">actualizado ${when}</span>`;
             }catch(err){
                 estado.textContent = 'Error: ' + err.message;
                 errBox.style.display='block';
@@ -800,6 +823,7 @@
         document.getElementById('btn-actualizar').addEventListener('click', cargar);
         document.getElementById('sel-form').addEventListener('change', cargar);
         document.getElementById('sel-limit').addEventListener('change', cargar);
+        document.getElementById('reg-search').addEventListener('input', repaint);
         document.getElementById('btn-probar').addEventListener('click', async ()=>{
             const estado = document.getElementById('estado');
             const errBox = document.getElementById('err');

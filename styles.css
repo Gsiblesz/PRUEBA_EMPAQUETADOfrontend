@@ -522,11 +522,49 @@ body {
 }
 
 .menu-btn {
-    width: 230px;
+    width: 280px;
     height: 74px;
     border-radius: 24px;
-    font-size: 2.2rem;
+    font-size: 1.9rem;
     font-weight: 700;
+}
+
+#reg-search {
+    background: #0f1630;
+    border: 1px solid #2f3d68;
+    color: #dbe2ff;
+    border-radius: 10px;
+    padding: 10px 12px;
+    min-height: 40px;
+}
+
+.reg-table-wrap {
+    overflow: auto;
+    max-height: 68vh;
+}
+
+.reg-table thead th {
+    white-space: nowrap;
+}
+
+.reg-table td {
+    white-space: nowrap;
+}
+
+@media (max-width: 960px) {
+    .reg-toolbar-left {
+        width: 100%;
+    }
+
+    #reg-search {
+        width: 100%;
+        min-width: 0 !important;
+    }
+
+    .menu-btn {
+        width: 220px;
+        font-size: 2.2rem;
+    }
 }
 
 .menu-footer-corner {
