@@ -10,18 +10,22 @@
         .app-page { display: none; }
         .app-page.active { display: block; }
         .page-shell { width: min(1100px, 94vw); margin: 0 auto; }
-        .registros-wrap { max-width: 1100px; margin: 0 auto; padding: 20px 0 40px; }
-        .reg-toolbar { display:flex; align-items:center; gap:12px; flex-wrap:wrap; justify-content:space-between; margin:18px 0; }
+        .registros-wrap { width: min(1320px, 96vw); margin: 0 auto; padding: 20px 0 40px; }
+        .reg-toolbar { display:flex; align-items:flex-start; gap:12px; flex-wrap:wrap; justify-content:space-between; margin:18px 0; }
         .reg-toolbar-left { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
-        .reg-card { background:#1a223f; border:1px solid #2b2f45; padding:10px 12px; border-radius:14px; display:flex; gap:8px; align-items:center; color:#dbe2ff; }
-        .reg-status { color:#bfc8e2; font-size:.9rem; }
+        .reg-card { background:#16203a; border:1px solid #273455; padding:10px 12px; border-radius:12px; display:flex; gap:8px; align-items:center; color:#dbe2ff; }
+        .reg-status { color:#7d8fb3; font-size:.9rem; }
         .reg-status .badge { background:#2e8b57; color:white; padding:2px 8px; border-radius:12px; font-size:.75rem; }
-        .reg-error { display:none; background:rgba(255,107,107,.1); border:1px solid rgba(255,107,107,.3); color:#ffdede; padding:10px 12px; border-radius:10px; margin-top:8px; }
-        .reg-table-wrap { background:#171f3a; border:1px solid #2b2f45; border-radius:16px; overflow:hidden; }
-        .reg-table { width:100%; border-collapse:collapse; }
-        .reg-table thead th { background:#2b2f45; text-align:left; font-weight:700; padding:12px 14px; border-bottom:1px solid #2b2f45; position:sticky; top:0; z-index:1; color:#fff; }
-        .reg-table tbody td { padding:10px 14px; border-bottom:1px solid #2b2f45; color:#dbe2ff; }
-        .reg-table tbody tr:hover { background:rgba(66,133,244,.06); }
+        .reg-error { display:none; background:rgba(255,107,107,.1); border:1px solid rgba(255,107,107,.3); color:#8c1d2e; padding:10px 12px; border-radius:10px; margin-top:8px; }
+        .reg-table-wrap { background:#fff; border:1px solid #d7deea; border-radius:14px; overflow:auto; box-shadow:0 2px 10px rgba(20,35,70,0.06); }
+        .reg-table { width:100%; min-width:1200px; border-collapse:collapse; }
+        .reg-table thead th { background:#f2f5fb; text-align:left; font-weight:700; padding:12px 14px; border-bottom:1px solid #d7deea; position:sticky; top:0; z-index:1; color:#1d2f4f; }
+        .reg-table tbody td { padding:10px 14px; border-bottom:1px solid #e4eaf4; color:#2b3f63; }
+        .reg-table tbody tr:hover { background:#f7faff; }
+        .reg-check { width:18px; height:18px; accent-color:#1f6fd2; cursor:pointer; }
+        .reg-actions { display:flex; gap:10px; flex-wrap:wrap; }
+        .btn-danger { background:#c0392b !important; color:#fff !important; }
+        .btn-danger:hover { background:#a93226 !important; }
     </style>
 </head>
 <body>
@@ -49,9 +53,7 @@
                 <input id="input-key" type="password" placeholder="Ingresa la clave" style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid #444; background:#23263a; color:#fff;">
                 <button class="footer-btn" style="padding:10px 12px; font-size:0.8rem; background:#ffb347; color:#23263a; width:max-content;" onclick="desbloquearURL()">Desbloquear URL</button>
                 <div id="url-block" style="display:none; flex-direction:column; gap:8px;">
-                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                        <button class="footer-btn" style="padding:10px 12px; font-size:0.8rem; background:#2196f3;" onclick="probarConexion()">Probar conexión</button>
-                    </div>
+                    <div style="font-size:0.82rem; color:#9fb2d6;">Conexión al backend configurado activa por defecto.</div>
                 </div>
                 <button class="footer-btn" style="padding:10px 16px; font-size:0.9rem; background:#43e6b1; color:#23263a;" onclick="cerrarAjustes()">Cerrar</button>
                 <div id="resultado-prueba" style="margin-top:4px; font-size:0.85rem;"></div>
@@ -257,14 +259,6 @@
                         </select>
                     </div>
                     <div class="reg-card">
-                        <label style="margin:0; color:#bfc8e2; font-size:.92rem;">Límite</label>
-                        <select id="sel-limit">
-                            <option>10</option>
-                            <option selected>20</option>
-                            <option>50</option>
-                        </select>
-                    </div>
-                    <div class="reg-card">
                         <label style="margin:0; color:#bfc8e2; font-size:.92rem;">Mes</label>
                         <input id="reg-month" type="month" />
                     </div>
@@ -272,9 +266,11 @@
                         <label style="margin:0; color:#bfc8e2; font-size:.92rem;">Fecha</label>
                         <input id="reg-date" type="date" />
                     </div>
-                    <button id="btn-actualizar" class="btn-small">Actualizar</button>
-                    <button id="btn-limpiar-filtros" class="btn-small secondary">Limpiar filtros</button>
-                    <button id="btn-probar" class="btn-small secondary">Probar conexión</button>
+                    <div class="reg-actions">
+                        <button id="btn-actualizar" class="btn-small">Actualizar</button>
+                        <button id="btn-limpiar-filtros" class="btn-small secondary">Limpiar filtros</button>
+                        <button id="btn-borrar-seleccionados" class="btn-small btn-danger">Borrar seleccionados</button>
+                    </div>
                     <input id="reg-search" type="text" placeholder="Buscar en registros..." style="min-width:260px;" />
                 </div>
                 <div class="reg-status" id="estado"></div>
@@ -407,28 +403,6 @@
                 showPage('registros');
             }
         } catch(_) {}
-    }
-    function probarConexion(){
-        const blockVisible = document.getElementById('url-block').style.display!=='none';
-        if(!blockVisible){ mostrarResultado('Primero desbloquea la configuración', false); return; }
-        const url = getBaseUrl();
-        if(!url){ mostrarResultado('No hay backend configurado', false); return; }
-        const pingUrl = url.replace(/\/+$/,'') + '/health';
-        mostrarResultado('Probando...', true);
-        fetch(pingUrl, { method:'GET', cache:'no-store' })
-            .then(r=> r.text())
-            .then(t=>{
-                try{
-                    const j=JSON.parse(t);
-                    if(j.ok || j.status === 'healthy'){ mostrarResultado('Conexión OK', true); }
-                    else { mostrarResultado('Respuesta recibida pero ok=false', false); }
-                }catch(_){
-                    mostrarResultado('Conexión recibida (formato no JSON)', true);
-                }
-            })
-            .catch(_=> {
-                mostrarResultado('No se pudo conectar. Verifica la URL del backend.', false);
-            });
     }
     function mostrarResultado(msg, ok){ const el=document.getElementById('resultado-prueba'); el.textContent=msg; el.style.color= ok?'#43e6b1':'#ff7675'; }
 
@@ -780,6 +754,7 @@
     (function(){
         let allRows = [];
         let allHeaders = [];
+        const selectedRows = new Set();
 
         function normalizeHeaders(headers){
             return (headers||[]).filter(h => {
@@ -805,15 +780,70 @@
             const tbody = document.querySelector('#tabla tbody');
             thead.innerHTML = '';
             tbody.innerHTML = '';
-            const cleanHeaders = normalizeHeaders(headers);
+            const cleanHeaders = normalizeHeaders(headers).filter(h => !String(h).startsWith('__'));
             const trh = document.createElement('tr');
+            const thSelect = document.createElement('th');
+            thSelect.style.width = '44px';
+            thSelect.innerHTML = '<input type="checkbox" id="reg-select-all" class="reg-check" title="Seleccionar todo" />';
+            trh.appendChild(thSelect);
             cleanHeaders.forEach(h=>{ const th=document.createElement('th'); th.textContent=h; trh.appendChild(th); });
             thead.appendChild(trh);
             (rows||[]).forEach(obj=>{
                 const tr=document.createElement('tr');
+                const id = Number(obj?.__ROW_ID);
+                const tdCheck = document.createElement('td');
+                const check = document.createElement('input');
+                check.type = 'checkbox';
+                check.className = 'reg-check';
+                check.disabled = !Number.isInteger(id);
+                check.checked = Number.isInteger(id) && selectedRows.has(id);
+                check.addEventListener('change', ()=>{
+                    if(!Number.isInteger(id)) return;
+                    if(check.checked) selectedRows.add(id);
+                    else selectedRows.delete(id);
+                    updateDeleteButtonState();
+                    syncSelectAllState(rows);
+                });
+                tdCheck.appendChild(check);
+                tr.appendChild(tdCheck);
                 cleanHeaders.forEach(h=>{ const td=document.createElement('td'); td.textContent = fmtValue(obj[h]); tr.appendChild(td); });
                 tbody.appendChild(tr);
             });
+
+            const selectAll = document.getElementById('reg-select-all');
+            if(selectAll){
+                selectAll.addEventListener('change', ()=>{
+                    const visibleIds = (rows||[]).map(row => Number(row?.__ROW_ID)).filter(id => Number.isInteger(id));
+                    if(selectAll.checked) visibleIds.forEach(id => selectedRows.add(id));
+                    else visibleIds.forEach(id => selectedRows.delete(id));
+                    renderTable(allHeaders, rows);
+                    updateDeleteButtonState();
+                });
+            }
+            syncSelectAllState(rows);
+            updateDeleteButtonState();
+        }
+
+        function syncSelectAllState(rows){
+            const selectAll = document.getElementById('reg-select-all');
+            if(!selectAll) return;
+            const visibleIds = (rows||[]).map(row => Number(row?.__ROW_ID)).filter(id => Number.isInteger(id));
+            if(!visibleIds.length){
+                selectAll.checked = false;
+                selectAll.indeterminate = false;
+                return;
+            }
+            const selectedVisible = visibleIds.filter(id => selectedRows.has(id)).length;
+            selectAll.checked = selectedVisible === visibleIds.length;
+            selectAll.indeterminate = selectedVisible > 0 && selectedVisible < visibleIds.length;
+        }
+
+        function updateDeleteButtonState(){
+            const btn = document.getElementById('btn-borrar-seleccionados');
+            if(!btn) return;
+            const count = selectedRows.size;
+            btn.disabled = count === 0;
+            btn.textContent = count ? `Borrar seleccionados (${count})` : 'Borrar seleccionados';
         }
 
         function getFilteredRows() {
@@ -838,9 +868,36 @@
             estado.textContent = `Mostrando ${filteredRows.length} de ${allRows.length} • ${selForm}`;
         }
 
+        async function borrarSeleccionados(){
+            const ids = Array.from(selectedRows);
+            if(!ids.length) return;
+            const tipo = document.getElementById('sel-form').value === 'Merma' ? 'Merma' : 'Empaquetado';
+            if(!confirm(`¿Seguro que deseas borrar ${ids.length} registro(s) seleccionados de ${tipo}?`)) return;
+
+            const estado = document.getElementById('estado');
+            const errBox = document.getElementById('err');
+            estado.textContent = 'Borrando seleccionados...';
+            errBox.style.display='none';
+            try{
+                const response = await fetch(`${getBaseUrl()}/api/registros/delete`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ tipo, ids })
+                });
+                const payload = await response.json();
+                if(!response.ok || payload.ok !== true) throw new Error(payload.error || `HTTP ${response.status}`);
+                selectedRows.clear();
+                await cargar();
+                estado.textContent = `Se borraron ${payload.deleted || 0} registros.`;
+            }catch(error){
+                estado.textContent = 'Error al borrar';
+                errBox.style.display='block';
+                errBox.textContent = `No se pudo borrar: ${error.message}`;
+            }
+        }
+
         async function cargar(){
             const selForm = document.getElementById('sel-form').value;
-            const limit = parseInt(document.getElementById('sel-limit').value, 10) || 20;
             const monthValue = String(document.getElementById('reg-month')?.value || '').trim();
             const dateValue = String(document.getElementById('reg-date')?.value || '').trim();
             const estado = document.getElementById('estado');
@@ -850,7 +907,7 @@
             estado.textContent = 'Cargando...';
             try{
                 const tipo = selForm === 'Merma' ? 'Merma' : 'Empaquetado';
-                const params = new URLSearchParams({ tipo, limit: String(limit) });
+                const params = new URLSearchParams({ tipo });
                 if(monthValue) params.set('mes', monthValue);
                 if(dateValue) params.set('fecha', dateValue);
                 const url = `${getBaseUrl()}/api/registros?${params.toString()}`;
@@ -865,6 +922,7 @@
                 }
                 allHeaders = Array.isArray(data.headers) ? data.headers : [];
                 allRows = Array.isArray(data.rows) ? data.rows : [];
+                selectedRows.clear();
                 repaint();
                 const when = new Date().toLocaleString();
                 estado.innerHTML = `${estado.textContent} • <span class="badge">actualizado ${when}</span>`;
@@ -877,33 +935,17 @@
 
         document.getElementById('btn-actualizar').addEventListener('click', cargar);
         document.getElementById('sel-form').addEventListener('change', cargar);
-        document.getElementById('sel-limit').addEventListener('change', cargar);
         document.getElementById('reg-month').addEventListener('change', cargar);
         document.getElementById('reg-date').addEventListener('change', cargar);
         document.getElementById('reg-search').addEventListener('input', repaint);
+        document.getElementById('btn-borrar-seleccionados').addEventListener('click', borrarSeleccionados);
         document.getElementById('btn-limpiar-filtros').addEventListener('click', ()=>{
             document.getElementById('reg-month').value = '';
             document.getElementById('reg-date').value = '';
             document.getElementById('reg-search').value = '';
             cargar();
         });
-        document.getElementById('btn-probar').addEventListener('click', async ()=>{
-            const estado = document.getElementById('estado');
-            const errBox = document.getElementById('err');
-            const url = `${getBaseUrl()}/health`;
-            estado.textContent = 'Probando conexión...';
-            errBox.style.display='none';
-            try{
-                const r = await fetch(url, { method:'GET', cache:'no-store' });
-                const t = await r.text();
-                try{ const j = JSON.parse(t); estado.textContent = j && (j.ok || j.status === 'healthy') ? 'Conexión OK' : 'Respuesta recibida'; }
-                catch(_){ estado.textContent = 'Conexión recibida'; }
-            }catch(e){
-                estado.textContent='No se pudo conectar: ' + e.message;
-                errBox.style.display='block';
-                errBox.textContent='Revisa la URL del backend en Ajustes.';
-            }
-        });
+        updateDeleteButtonState();
         window.__loadRegistros = cargar;
     })();
     </script>
