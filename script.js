@@ -101,10 +101,8 @@ function buildResumenMeta(formId) {
 }
 
 function buildProductosResumenRows(formId, seleccionados) {
-    const isMerma = formId === 'merma-form';
     return (seleccionados || []).map((item, idx) => {
         const cantidad = `${item.cantidad}${item.unidad ? ` ${item.unidad}` : ''}`;
-        const motivo = isMerma ? (item.motivo || '-') : '-';
         return `
             <tr>
                 <td>${idx + 1}</td>
@@ -112,7 +110,6 @@ function buildProductosResumenRows(formId, seleccionados) {
                 <td>${escapeHtml(item.descripcion || '-')}</td>
                 <td>${escapeHtml(cantidad)}</td>
                 <td>${escapeHtml(item.lote || '-')}</td>
-                <td>${escapeHtml(motivo)}</td>
             </tr>`;
     }).join('');
 }

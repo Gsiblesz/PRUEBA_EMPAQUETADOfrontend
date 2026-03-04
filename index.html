@@ -41,7 +41,6 @@
         .menu-section .menu-actions { display:flex; gap:10px; flex-wrap:wrap; }
         .menu-primary-btn { display:inline-flex; align-items:center; justify-content:center; text-decoration:none; border:none; border-radius:12px; padding:10px 14px; font-weight:700; font-size:.98rem; cursor:pointer; }
         .menu-primary-btn.empa { background:#2196f3; color:#fff; }
-        .menu-primary-btn.merma { background:#f0f5ff; color:#23406f; border:1px solid #c7d8f3; }
         .menu-primary-btn.almacen { background:#6b7cff; color:#fff; }
         @media (max-width: 860px) {
             .menu-sections { grid-template-columns:1fr; }
@@ -58,13 +57,13 @@
             <div class="menu-dashboard">
                 <div class="menu-welcome-card">
                     <h2>Bienvenidos</h2>
-                    <p>Selecciona el módulo que deseas usar. El sistema está dividido en dos áreas: registro de producción (Empaquetado/Merma) y validación de conteo en Almacén09.</p>
+                    <p>Selecciona el módulo que deseas usar. El sistema está dividido en dos áreas: registro de producción y validación de conteo en Almacén09.</p>
                 </div>
 
                 <div class="menu-sections">
                     <article class="menu-section">
                         <h3>Empaquetado</h3>
-                        <p>Registra la producción diaria, crea lotes y documenta merma desde el mismo flujo de formularios.</p>
+                        <p>Registra la producción diaria y crea lotes de despacho desde un solo formulario.</p>
                         <div class="menu-actions">
                             <a href="#" id="nav-empa" class="menu-primary-btn empa">Ir a Empaquetado</a>
                         </div>
@@ -80,9 +79,7 @@
                 </div>
             </div>
             <div class="menu-footer-corner">
-                <a href="#" class="footer-btn ajustes-btn" onclick="toggleAjustes(event)">Configuración</a>
                 <a href="#" class="footer-btn" style="background:#2196f3;" onclick="openRegistros(event)">Resultados</a>
-                <a href="#" class="footer-btn" style="background:#6b7cff;" onclick="openAlmacen09(event)">Almacén 09</a>
                 <a href="#" class="footer-btn" style="background:#43e6b1; color:#23263a;" onclick="openProductos(event)">Catálogo</a>
                 <a href="#" class="footer-btn inicio-btn" onclick="showPage('menu')">Inicio</a>
             </div>
@@ -176,7 +173,6 @@
                                     <th>Producto</th>
                                     <th>Cantidad</th>
                                     <th>Lote</th>
-                                    <th>Motivo</th>
                                 </tr>
                             </thead>
                             <tbody id="confirm-productos-body"></tbody>
@@ -253,6 +249,8 @@
                         <label style="margin:0; color:#bfc8e2; font-size:.92rem;">Formulario</label>
                         <select id="sel-form">
                             <option value="Empaquetado">Empaquetados</option>
+                            <option value="Almacen09">Almacén09</option>
+                            <option value="General">General</option>
                         </select>
                     </div>
                     <div class="reg-card">
@@ -382,16 +380,6 @@
         const keyInput = document.getElementById('input-key');
         if(keyInput) keyInput.focus();
     }
-    function toggleAjustes(e){
-        e.preventDefault();
-        const p=document.getElementById('panel-ajustes');
-        const wasHidden = p.style.display==='none';
-        p.style.display = wasHidden?'flex':'none';
-        if(wasHidden){
-            document.getElementById('input-key').value='';
-            document.getElementById('resultado-prueba').textContent='';
-        }
-    }
     function cerrarAjustes(){
         document.getElementById('panel-ajustes').style.display='none';
         document.getElementById('input-key').value='';
@@ -446,32 +434,6 @@
             }
         }
 
-        function opcionesMotivoHTML(){
-            return `
-                <option value="">Motivo…</option>
-                <option>MANCHADOS</option>
-                <option>ERROR DE PROCESO</option>
-                <option>MAL FORMADO (HORNEADO)</option>
-                <option>QUEMADO</option>
-                <option>APLASTADOS</option>
-                <option>ROTOS</option>
-                <option>CAIDOS AL PISO</option>
-                <option>FERMENTADO</option>
-                <option>ALVEOLO</option>
-                <option>CRUDO</option>
-                <option>MAL FORMADO (BOLEADO)</option>
-                <option>MAL CORTE</option>
-                <option>OTROS</option>
-                <option>ADHERIDO A LA BANDEJA</option>
-                <option>DESMOLDADO</option>
-                <option>SOBRANTE BUEN ESTADO</option>
-                <option>MASA DE DESCARTE</option>
-                <option>PEQUEÑOS EN TAMAÑO</option>
-                <option>VIRUTA</option>
-                <option>SOBREPASA EL TAMAÑO ADECUADO</option>
-                <option>ADHERIDO AL MOLDE</option>`;
-        }
-
         async function cargarProductos(){
             if(PRODUCTOS_CACHE.length) return PRODUCTOS_CACHE;
             const url = `${getBaseUrl()}/productos`;
@@ -514,7 +476,6 @@
             if(!btn) return;
             btn.addEventListener('click', ()=>{
                 setFechaHoy(prefix);
-                if(prefix === 'merma') updateMermaLotes();
                 if(prefix === 'empa') updateEmpaLotes();
             });
         }
@@ -526,7 +487,6 @@
             const btn = document.getElementById(prefix+'-btn-agregar-producto');
             const contSel = document.getElementById(prefix+'-productos-seleccionados');
             if(!panel||!buscar||!lista||!btn||!contSel) return;
-            const isMerma = prefix === 'merma';
             function render(term=''){
                 const t = term.trim().toLowerCase();
                 lista.innerHTML='';
@@ -561,16 +521,14 @@
                             data-paquetes="${p.paquetes || ''}"
                             data-sobre-piso="${p.sobre_piso || ''}"
                             name="qty_${p.codigo}">
-                        ${isMerma ? '' : '<span class="cestas-est" aria-live="polite"></span>'}
-                        ${isMerma ? `<select class="merma-motivo select" style="min-width:210px;">${opcionesMotivoHTML()}</select><input type="text" class="merma-lote" placeholder="Lote" style="min-width:120px;"/>` : `<input type="text" class="empa-lote" placeholder="Lote" style="min-width:140px;" maxlength="10"/>`}
+                        <span class="cestas-est" aria-live="polite"></span>
+                        <input type="text" class="empa-lote" placeholder="Lote" style="min-width:140px;" maxlength="16"/>
                         <button type="button" class="remove-sel">✕</button>
                     </div>`;
                 row.querySelector('.remove-sel').addEventListener('click', ()=>row.remove());
                 contSel.appendChild(row);
-                if(!isMerma){
-                    const loteInput = row.querySelector('.empa-lote');
-                    bindEmpaLoteInput(loteInput);
-                }
+                const loteInput = row.querySelector('.empa-lote');
+                bindEmpaLoteInput(loteInput);
                 close();
             }
             return { render, open, close, buscar };
@@ -590,41 +548,32 @@
             if(!fecha) return '';
             return `BC${fecha}`;
         }
-        function getEmpaLoteSuffix(){
+        function getEmpaMachineCode(){
             const maqRaw = document.getElementById('empa-maquina') ? document.getElementById('empa-maquina').value : '';
             const maq = String(maqRaw || '').replace(/[^0-9A-Za-z]/g,'').slice(-2).toUpperCase();
             return maq ? maq.padStart(2,'0') : '00';
         }
-        function applyEmpaLoteToInput(input, preserveCurrentSuffix){
+        function applyEmpaLoteToInput(input){
             if(!input) return;
-            const prefix = getEmpaLotePrefix();
-            if(!prefix) return;
-            const current = String(input.value || '').trim().toUpperCase().replace(/\s+/g,'');
-            let suffix = preserveCurrentSuffix ? current.slice(-2) : '';
-            suffix = String(suffix || '').replace(/[^0-9A-Z]/g,'');
-            if(!suffix) suffix = getEmpaLoteSuffix();
-            input.value = `${prefix}${suffix}`;
+            if (input.dataset.auto === '0' && String(input.value || '').trim()) return;
+            const lote = buildEmpaLote();
+            if(!lote) return;
+            input.value = lote;
+            input.dataset.auto = '1';
         }
         function bindEmpaLoteInput(input){
             if(!input || input.dataset.bound === '1') return;
             input.dataset.bound = '1';
             input.dataset.auto = '1';
-            applyEmpaLoteToInput(input, false);
+            applyEmpaLoteToInput(input);
             input.addEventListener('input', ()=>{
                 input.dataset.auto = '0';
-                applyEmpaLoteToInput(input, true);
             });
         }
         function buildEmpaLote(){
             const prefix = getEmpaLotePrefix();
             if(!prefix) return '';
-            return `${prefix}${getEmpaLoteSuffix()}`;
-        }
-        function buildMermaLote(){
-            const fechaVal = document.getElementById('merma-fecha') ? document.getElementById('merma-fecha').value : '';
-            const fecha = formatDateForLote(fechaVal);
-            if(!fecha) return '';
-            return `BC${fecha}`;
+            return `${prefix}${getEmpaMachineCode()}`;
         }
         function updateEmpaLotes(){
             const preview = document.getElementById('empa-lote-preview');
@@ -632,26 +581,12 @@
             if(preview) preview.value = lote ? `Lote: ${lote}` : '';
             const contSel = document.getElementById('empa-productos-seleccionados');
             if(!contSel) return;
-            contSel.querySelectorAll('.empa-lote').forEach(input=>{
-                const preserve = input.dataset.auto !== '1';
-                applyEmpaLoteToInput(input, preserve);
-            });
-        }
-        function updateMermaLotes(){
-            const lote = buildMermaLote();
-            const contSel = document.getElementById('merma-productos-seleccionados');
-            if(!contSel) return;
-            contSel.querySelectorAll('.merma-lote').forEach(input=>{
-                if(input.dataset.auto === '1' || !input.value){
-                    if(lote) { input.value = lote; input.dataset.auto = '1'; }
-                }
-            });
+            contSel.querySelectorAll('.empa-lote').forEach(input=>{ applyEmpaLoteToInput(input); });
         }
 
         async function refreshPanels(){
             await cargarProductos();
             if(window.__empaPanel) window.__empaPanel.render(window.__empaPanel.buscar.value);
-            if(window.__mermaPanel) window.__mermaPanel.render(window.__mermaPanel.buscar.value);
         }
 
         document.addEventListener('DOMContentLoaded', async ()=>{
@@ -872,16 +807,21 @@
         }
 
         function repaint() {
+            const selectedType = String(document.getElementById('sel-form')?.value || 'Empaquetado');
             const filteredRows = getFilteredRows();
             renderTable(allHeaders, filteredRows);
             const estado = document.getElementById('estado');
-            estado.textContent = `Mostrando ${filteredRows.length} de ${allRows.length} • Empaquetado`;
+            estado.textContent = `Mostrando ${filteredRows.length} de ${allRows.length} • ${selectedType}`;
         }
 
         async function borrarSeleccionados(){
             const ids = Array.from(selectedRows);
             if(!ids.length) return;
-            const tipo = 'Empaquetado';
+            const tipo = String(document.getElementById('sel-form')?.value || 'Empaquetado');
+            if (tipo !== 'Empaquetado') {
+                alert('Solo se permite borrar desde la vista Empaquetado.');
+                return;
+            }
             if(!confirm(`¿Seguro que deseas borrar ${ids.length} registro(s) seleccionados de ${tipo}?`)) return;
 
             const estado = document.getElementById('estado');
@@ -907,6 +847,7 @@
         }
 
         async function cargar(){
+            const selectedType = String(document.getElementById('sel-form')?.value || 'Empaquetado');
             const monthValue = String(document.getElementById('reg-month')?.value || '').trim();
             const dateValue = String(document.getElementById('reg-date')?.value || '').trim();
             const estado = document.getElementById('estado');
@@ -915,7 +856,7 @@
             errBox.textContent='';
             estado.textContent = 'Cargando...';
             try{
-                const tipo = 'Empaquetado';
+                const tipo = selectedType;
                 const params = new URLSearchParams({ tipo });
                 if(monthValue) params.set('mes', monthValue);
                 if(dateValue) params.set('fecha', dateValue);
@@ -943,7 +884,7 @@
         }
 
         document.getElementById('btn-actualizar').addEventListener('click', cargar);
-        document.getElementById('sel-form').addEventListener('change', () => { document.getElementById('sel-form').value = 'Empaquetado'; cargar(); });
+        document.getElementById('sel-form').addEventListener('change', cargar);
         document.getElementById('reg-month').addEventListener('change', cargar);
         document.getElementById('reg-date').addEventListener('change', cargar);
         document.getElementById('reg-search').addEventListener('input', repaint);

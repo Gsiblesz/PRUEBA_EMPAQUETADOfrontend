@@ -174,7 +174,6 @@ function renderDetalle() {
       <div class="producto-codigo">${producto.codigo}</div>
       <div class="producto-descripcion">${nombreProducto}</div>
       <div class="producto-lote">Lote: ${producto.lote_producto || loteActivo.codigo_lote}</div>
-      <div class="producto-cantidad">Cantidad esperada: ${producto.cantidad}</div>
       ${producto.cestas_calculadas !== null && producto.cestas_calculadas !== undefined ? `<div class="producto-cestas">Cestas: ${producto.cestas_calculadas}</div>` : ""}
     `;
 
