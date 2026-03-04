@@ -702,3 +702,77 @@ input[type="text"], input[type="number"], input[type="date"], select {
 .prod-name {
     color: #d5dbf0;
 }
+
+/* ===== Tema Pan de Tata ===== */
+:root {
+    --pdt-black: #000000;
+    --pdt-cream: #F8F3E9;
+    --pdt-brown: #C06E32;
+}
+
+body {
+    background-color: var(--pdt-cream);
+    color: var(--pdt-black);
+}
+
+#form-empaquetados {
+    background: rgba(248, 243, 233, 0.98);
+    color: var(--pdt-black);
+    border: 1px solid rgba(192, 110, 50, 0.35);
+}
+
+#form-empaquetados h2,
+#form-empaquetados label,
+.productos-section label,
+.field label {
+    color: var(--pdt-black) !important;
+    text-shadow: none;
+}
+
+#form-empaquetados input[type="text"],
+#form-empaquetados input[type="number"],
+#form-empaquetados input[type="date"],
+#form-empaquetados select,
+#form-empaquetados .hora-input {
+    background: #fff;
+    color: var(--pdt-black);
+    border: 1px solid #d7c7a8;
+}
+
+#form-empaquetados .seleccionados,
+#form-empaquetados .panel-productos,
+#form-empaquetados .producto-line {
+    background: #fff8ed;
+    border-color: #ead6b5;
+}
+
+#form-empaquetados .prod-name,
+#form-empaquetados .cestas-est {
+    color: #3f2f24;
+}
+
+button,
+.btn-small,
+.footer-btn,
+.menu-primary-btn {
+    background: var(--pdt-brown);
+    color: #fff;
+}
+
+button:hover,
+.btn-small:hover,
+.footer-btn:hover,
+.menu-primary-btn:hover {
+    background: #a85f2b;
+    color: #fff;
+}
+
+button.secondary,
+.btn-small.secondary {
+    background: #f1d8bf;
+    color: var(--pdt-black);
+}
+
+.volver-menu {
+    color: var(--pdt-brown);
+}

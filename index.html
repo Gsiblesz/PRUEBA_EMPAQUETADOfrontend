@@ -4,9 +4,22 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Prueba de Empaquetado</title>
-    <link rel="icon" type="image/svg+xml" href="BRAND.svg" />
+    <link rel="icon" type="image/png" href="cropped-PDT-favicon.png" />
     <link rel="stylesheet" href="styles.css" />
     <style>
+        :root {
+            --pdt-negro: #000000;
+            --pdt-crema: #F8F3E9;
+            --pdt-tostado: #C06E32;
+        }
+        body {
+            background-color: var(--pdt-crema);
+            background-image: linear-gradient(rgba(248,243,233,0.82), rgba(248,243,233,0.88)), url('bello-campo-tiendas.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: var(--pdt-negro);
+        }
         .app-page { display: none; }
         .app-page.active { display: block; }
         .page-shell { width: min(1100px, 94vw); margin: 0 auto; }
@@ -31,17 +44,16 @@
         .results-hero h2 { margin:0 0 6px; font-size:1.9rem; }
         .results-hero p { margin:0; color:#d8ecfb; }
         .menu-dashboard { width:min(1100px, 94vw); margin:18px auto 0; display:grid; gap:16px; }
-        .menu-welcome-card { background:#0f536f; color:#eaf6ff; border-radius:22px; padding:20px 24px; box-shadow:0 8px 24px rgba(6,54,78,.18); }
-        .menu-welcome-card h2 { margin:0 0 8px; font-size:2rem; font-family: 'Arial Black', Arial, sans-serif; }
-        .menu-welcome-card p { margin:0; font-size:1.08rem; line-height:1.45; color:#d8ecfb; }
+        .menu-welcome-card { background:rgba(248,243,233,0.70); backdrop-filter:blur(2px); color:var(--pdt-negro); border-radius:22px; padding:20px 24px; box-shadow:0 8px 24px rgba(0,0,0,.12); text-align:center; border:1px solid rgba(192,110,50,.35); }
+        .menu-welcome-card h2 { margin:0 0 8px; font-size:2.7rem; font-family: 'Arial Black', Arial, sans-serif; color:var(--pdt-negro); }
+        .menu-welcome-card p { margin:0; font-size:1.08rem; line-height:1.45; color:var(--pdt-negro); }
         .menu-sections { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:16px; }
-        .menu-section { background:#fff; border-radius:18px; border:1px solid #dce6f3; padding:18px; box-shadow:0 4px 14px rgba(12,42,86,.08); }
-        .menu-section h3 { margin:0 0 8px; color:#1f355a; font-size:1.45rem; }
-        .menu-section p { margin:0 0 14px; color:#51698f; font-size:.98rem; line-height:1.42; min-height:44px; }
+        .menu-section { background:var(--pdt-tostado); border-radius:32px; border:1px solid rgba(0,0,0,.08); padding:22px; box-shadow:0 4px 14px rgba(0,0,0,.15); text-align:center; }
+        .menu-section h3 { margin:0 0 8px; color:#fff; font-size:2rem; line-height:1.05; }
+        .menu-section p { margin:0 0 14px; color:#fff; font-size:1.05rem; line-height:1.28; min-height:70px; font-weight:700; }
         .menu-section .menu-actions { display:flex; gap:10px; flex-wrap:wrap; }
-        .menu-primary-btn { display:inline-flex; align-items:center; justify-content:center; text-decoration:none; border:none; border-radius:12px; padding:10px 14px; font-weight:700; font-size:.98rem; cursor:pointer; }
-        .menu-primary-btn.empa { background:#2196f3; color:#fff; }
-        .menu-primary-btn.almacen { background:#6b7cff; color:#fff; }
+        .menu-primary-btn { display:inline-flex; align-items:center; justify-content:center; text-decoration:none; border:none; border-radius:999px; padding:12px 22px; font-weight:800; font-size:1.02rem; cursor:pointer; margin:0 auto; }
+        .menu-primary-btn.empa, .menu-primary-btn.almacen { background:#fff; color:var(--pdt-tostado); }
         @media (max-width: 860px) {
             .menu-sections { grid-template-columns:1fr; }
         }
@@ -52,7 +64,7 @@
     <section id="page-menu" class="app-page active">
         <div class="menu-page">
             <div class="brand-corner">
-                <img src="BRAND.svg" alt="Brand" class="brand-logo-large">
+                <img src="cropped-PDT-favicon.png" alt="Pan de Tata" class="brand-logo-large" onerror="this.src='BRAND.svg'">
             </div>
             <div class="menu-dashboard">
                 <div class="menu-welcome-card">
@@ -370,15 +382,7 @@
     }
     function openAlmacen09(e){
         e.preventDefault();
-        if(isAdminUnlocked()) { showPage('almacen09'); return; }
-        const p = document.getElementById('panel-ajustes');
-        p.style.display = 'flex';
-        const res = document.getElementById('resultado-prueba');
-        res.textContent = 'Ingresa la clave para acceder a Almacén 09';
-        res.style.color = '#ffb347';
-        try { sessionStorage.setItem('GOTO_ALMACEN09','1'); } catch(_) {}
-        const keyInput = document.getElementById('input-key');
-        if(keyInput) keyInput.focus();
+        showPage('almacen09');
     }
     function cerrarAjustes(){
         document.getElementById('panel-ajustes').style.display='none';
