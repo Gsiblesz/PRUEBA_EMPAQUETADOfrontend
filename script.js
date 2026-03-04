@@ -180,6 +180,7 @@ function mostrarConfirmacionEnvio(formId, seleccionados) {
 
 function enviarFormulario(formId) {
     const form = document.getElementById(formId);
+    if (!form) return;
     form.addEventListener("submit", async function(e) {
         e.preventDefault();
         // Evitar envíos dobles (doble click, redoble toque)
@@ -418,4 +419,3 @@ function clearForm(formId){
 }
 
 enviarFormulario("empaquetados-form");
-enviarFormulario("merma-form");

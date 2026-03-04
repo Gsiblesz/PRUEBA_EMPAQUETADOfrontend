@@ -26,6 +26,26 @@
         .reg-actions { display:flex; gap:10px; flex-wrap:wrap; }
         .btn-danger { background:#c0392b !important; color:#fff !important; }
         .btn-danger:hover { background:#a93226 !important; }
+        .resumen-note { background:#eef6ff; border:1px solid #b7d5ff; color:#1d4b84; border-radius:12px; padding:10px 14px; font-size:.95rem; margin-bottom:14px; }
+        .results-hero { background:#0f536f; color:#eaf6ff; border-radius:20px; padding:18px 20px; margin-bottom:14px; }
+        .results-hero h2 { margin:0 0 6px; font-size:1.9rem; }
+        .results-hero p { margin:0; color:#d8ecfb; }
+        .menu-dashboard { width:min(1100px, 94vw); margin:18px auto 0; display:grid; gap:16px; }
+        .menu-welcome-card { background:#0f536f; color:#eaf6ff; border-radius:22px; padding:20px 24px; box-shadow:0 8px 24px rgba(6,54,78,.18); }
+        .menu-welcome-card h2 { margin:0 0 8px; font-size:2rem; font-family: 'Arial Black', Arial, sans-serif; }
+        .menu-welcome-card p { margin:0; font-size:1.08rem; line-height:1.45; color:#d8ecfb; }
+        .menu-sections { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:16px; }
+        .menu-section { background:#fff; border-radius:18px; border:1px solid #dce6f3; padding:18px; box-shadow:0 4px 14px rgba(12,42,86,.08); }
+        .menu-section h3 { margin:0 0 8px; color:#1f355a; font-size:1.45rem; }
+        .menu-section p { margin:0 0 14px; color:#51698f; font-size:.98rem; line-height:1.42; min-height:44px; }
+        .menu-section .menu-actions { display:flex; gap:10px; flex-wrap:wrap; }
+        .menu-primary-btn { display:inline-flex; align-items:center; justify-content:center; text-decoration:none; border:none; border-radius:12px; padding:10px 14px; font-weight:700; font-size:.98rem; cursor:pointer; }
+        .menu-primary-btn.empa { background:#2196f3; color:#fff; }
+        .menu-primary-btn.merma { background:#f0f5ff; color:#23406f; border:1px solid #c7d8f3; }
+        .menu-primary-btn.almacen { background:#6b7cff; color:#fff; }
+        @media (max-width: 860px) {
+            .menu-sections { grid-template-columns:1fr; }
+        }
     </style>
 </head>
 <body>
@@ -35,11 +55,29 @@
             <div class="brand-corner">
                 <img src="BRAND.svg" alt="Brand" class="brand-logo-large">
             </div>
-            <h1>Prueba de Empaquetado</h1>
-            <p class="bienvenida">Selecciona el formulario que deseas completar</p>
-            <div class="menu-buttons-horizontal">
-                <a href="#" id="nav-empa" class="menu-btn empa-btn">EMPAQUETADOS</a>
-                <a href="#" id="nav-merma" class="menu-btn merma-btn">MERMA</a>
+            <div class="menu-dashboard">
+                <div class="menu-welcome-card">
+                    <h2>Bienvenidos</h2>
+                    <p>Selecciona el módulo que deseas usar. El sistema está dividido en dos áreas: registro de producción (Empaquetado/Merma) y validación de conteo en Almacén09.</p>
+                </div>
+
+                <div class="menu-sections">
+                    <article class="menu-section">
+                        <h3>Empaquetado</h3>
+                        <p>Registra la producción diaria, crea lotes y documenta merma desde el mismo flujo de formularios.</p>
+                        <div class="menu-actions">
+                            <a href="#" id="nav-empa" class="menu-primary-btn empa">Ir a Empaquetado</a>
+                        </div>
+                    </article>
+
+                    <article class="menu-section">
+                        <h3>Almacén09</h3>
+                        <p>Valida conteo contra lo empaquetado y confirma diferencias directamente con la base de datos.</p>
+                        <div class="menu-actions">
+                            <a href="#" class="menu-primary-btn almacen" onclick="openAlmacen09(event)">Ir a Almacén09</a>
+                        </div>
+                    </article>
+                </div>
             </div>
             <div class="menu-footer-corner">
                 <a href="#" class="footer-btn ajustes-btn" onclick="toggleAjustes(event)">Configuración</a>
@@ -49,16 +87,13 @@
                 <a href="#" class="footer-btn inicio-btn" onclick="showPage('menu')">Inicio</a>
             </div>
             <div id="panel-ajustes" class="apps-script-link" style="display:none; flex-direction:column; gap:12px;">
-                <strong>Configuración Backend</strong>
-                <label style="font-size:0.9rem; color:#bfc8e2;">Clave (para desbloquear la URL):</label>
+                <strong>Acceso protegido</strong>
+                <label style="font-size:0.9rem; color:#bfc8e2;">Clave (para ver respuestas y paneles):</label>
                 <input id="input-key" type="password" placeholder="Ingresa la clave" style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid #444; background:#23263a; color:#fff;">
-                <button class="footer-btn" style="padding:10px 12px; font-size:0.8rem; background:#ffb347; color:#23263a; width:max-content;" onclick="desbloquearURL()">Desbloquear URL</button>
-                <div id="url-block" style="display:none; flex-direction:column; gap:8px;">
-                    <div style="font-size:0.82rem; color:#9fb2d6;">Conexión al backend configurado activa por defecto.</div>
-                </div>
+                <button class="footer-btn" style="padding:10px 12px; font-size:0.8rem; background:#ffb347; color:#23263a; width:max-content;" onclick="desbloquearURL()">Desbloquear acceso</button>
                 <button class="footer-btn" style="padding:10px 16px; font-size:0.9rem; background:#43e6b1; color:#23263a;" onclick="cerrarAjustes()">Cerrar</button>
                 <div id="resultado-prueba" style="margin-top:4px; font-size:0.85rem;"></div>
-                <p style="margin-top:8px; font-size:0.7rem; opacity:0.7;">La clave solo desbloquea la visibilidad de configuración y se mantiene el backend por defecto configurado.</p>
+                <p style="margin-top:8px; font-size:0.7rem; opacity:0.7;">La clave solo habilita la visualización de paneles administrativos.</p>
             </div>
         </div>
     </section>
@@ -124,49 +159,6 @@
                     <div class="form-actions" style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">
                         <button type="submit">Enviar</button>
                         <button type="button" class="secondary" onclick="clearForm('empaquetados-form')">Limpiar</button>
-                    </div>
-                </form>
-            </div>
-
-            <div class="form-section" id="form-merma" style="display:none;">
-                <h2>MERMA</h2>
-                <form id="merma-form">
-                    <div class="compact-grid">
-                        <div class="field">
-                            <label for="merma-fecha">Fecha:</label>
-                            <div class="inline">
-                                <input type="date" id="merma-fecha" name="fecha" required />
-                                <button type="button" id="merma-btn-fecha-hoy" class="btn-small">Hoy</button>
-                            </div>
-                            <input type="text" id="merma-hora" name="hora" placeholder="Hora" readonly class="hora-input" />
-                        </div>
-                        <div class="field">
-                            <label for="merma-sede">Sede:</label>
-                            <select id="merma-sede" name="sede" required class="select">
-                                <option value="">Selecciona una sede</option>
-                            </select>
-                        </div>
-                        <div class="field">
-                            <label for="merma-responsable">Responsable:</label>
-                            <select id="merma-responsable" name="responsable" required class="select">
-                                <option value="">Selecciona un responsable</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="productos-section">
-                        <label>Productos y cantidades:</label>
-                        <div id="merma-productos-seleccionados" class="seleccionados"></div>
-                        <div class="agregar-wrapper">
-                            <button type="button" id="merma-btn-agregar-producto" class="btn-small secondary">Agregar producto</button>
-                            <div id="merma-panel-productos" class="panel-productos" style="display:none;">
-                                <input type="text" id="merma-panel-buscar" placeholder="Buscar producto o código" />
-                                <div id="merma-panel-lista" class="panel-lista"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-actions" style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">
-                        <button type="submit">Enviar</button>
-                        <button type="button" class="secondary" onclick="clearForm('merma-form')">Limpiar</button>
                     </div>
                 </form>
             </div>
@@ -242,9 +234,14 @@
 
     <section id="page-registros" class="app-page">
         <div class="container registros-wrap">
+            <div class="resumen-note"><strong>Importante:</strong> aquí se visualizan respuestas de Empaquetado y validación de Almacén09.</div>
+            <div class="results-hero">
+                <h2>Panel de resultados</h2>
+                <p>Consulta registros, aplica filtros y administra filas guardadas.</p>
+            </div>
             <div class="page-head" style="text-align:center; margin: 6px 0 18px;">
                 <h1>Registros recientes</h1>
-                <div style="color:#bfc8e2; font-size:.95rem;">Consulta las últimas filas guardadas desde Empaquetados o Merma</div>
+                <div style="color:#bfc8e2; font-size:.95rem;">Consulta las últimas filas guardadas desde Empaquetados</div>
                 <div style="margin-top:10px;">
                     <a href="#" class="volver-menu" onclick="showPage('menu'); return false;">&#8592; Volver al menú</a>
                 </div>
@@ -256,7 +253,6 @@
                         <label style="margin:0; color:#bfc8e2; font-size:.92rem;">Formulario</label>
                         <select id="sel-form">
                             <option value="Empaquetado">Empaquetados</option>
-                            <option value="Merma">Merma</option>
                         </select>
                     </div>
                     <div class="reg-card">
@@ -338,17 +334,10 @@
         if (page === 'productos' && window.__loadProductos) window.__loadProductos();
     }
 
-    function setFormTab(tab) {
+    function setFormTab(_tab) {
         const empaDiv = document.getElementById('form-empaquetados');
-        const mermaDiv = document.getElementById('form-merma');
-        if (!empaDiv || !mermaDiv) return;
-        if (tab === 'merma') {
-            empaDiv.style.display = 'none';
-            mermaDiv.style.display = '';
-        } else {
-            empaDiv.style.display = '';
-            mermaDiv.style.display = 'none';
-        }
+        if (!empaDiv) return;
+        empaDiv.style.display = '';
     }
 
     document.getElementById('nav-empa').addEventListener('click', function(e){
@@ -356,12 +345,6 @@
         setFormTab('empaquetados');
         showPage('forms');
     });
-    document.getElementById('nav-merma').addEventListener('click', function(e){
-        e.preventDefault();
-        setFormTab('merma');
-        showPage('forms');
-    });
-
     function isAdminUnlocked(){ try { return sessionStorage.getItem('ADMIN_UNLOCKED') === '1'; } catch(_) { return false; } }
     function openProductos(e){
         e.preventDefault();
@@ -407,23 +390,18 @@
         if(wasHidden){
             document.getElementById('input-key').value='';
             document.getElementById('resultado-prueba').textContent='';
-            ocultarBloqueURL();
         }
     }
     function cerrarAjustes(){
         document.getElementById('panel-ajustes').style.display='none';
         document.getElementById('input-key').value='';
-        ocultarBloqueURL();
     }
-    function ocultarBloqueURL(){ const b=document.getElementById('url-block'); if(b) b.style.display='none'; }
     function desbloquearURL(){
         const keyIn = document.getElementById('input-key');
         const key = (keyIn.value||'').trim();
         if(!key){ mostrarResultado('Ingresa la clave', false); return; }
         if(key !== APP_ADMIN_KEY){ mostrarResultado('Clave incorrecta', false); return; }
-        const block = document.getElementById('url-block');
-        block.style.display='flex';
-        mostrarResultado('Bloque desbloqueado', true);
+        mostrarResultado('Acceso desbloqueado', true);
         try { sessionStorage.setItem('ADMIN_UNLOCKED','1'); } catch(_) {}
         try {
             if(sessionStorage.getItem('GOTO_PRODUCTOS') === '1'){
@@ -682,25 +660,18 @@
             else showPage('menu');
             setFormTab('empaquetados');
             initFecha('empa');
-            initFecha('merma');
             window.__empaPanel = initPanel('empa');
-            window.__mermaPanel = initPanel('merma');
 
             populateSelect('empa-responsable', '/responsables', 'id_responsable', 'nombre_completo');
-            populateSelect('merma-responsable', '/responsables', 'id_responsable', 'nombre_completo');
             populateSelect('empa-sede', '/sedes', 'id_sede', 'nombre');
-            populateSelect('merma-sede', '/sedes', 'id_sede', 'nombre');
             populateSelect('empa-entregado', '/destinos', 'id_destino', 'nombre');
 
             await refreshPanels();
             const fechaEmpa = document.getElementById('empa-fecha');
             const maqEmpa = document.getElementById('empa-maquina');
-            const fechaMerma = document.getElementById('merma-fecha');
             if(fechaEmpa) fechaEmpa.addEventListener('change', updateEmpaLotes);
             if(maqEmpa) maqEmpa.addEventListener('input', updateEmpaLotes);
-            if(fechaMerma) fechaMerma.addEventListener('change', updateMermaLotes);
             updateEmpaLotes();
-            updateMermaLotes();
         });
     })();
 
@@ -901,17 +872,16 @@
         }
 
         function repaint() {
-            const selForm = document.getElementById('sel-form').value;
             const filteredRows = getFilteredRows();
             renderTable(allHeaders, filteredRows);
             const estado = document.getElementById('estado');
-            estado.textContent = `Mostrando ${filteredRows.length} de ${allRows.length} • ${selForm}`;
+            estado.textContent = `Mostrando ${filteredRows.length} de ${allRows.length} • Empaquetado`;
         }
 
         async function borrarSeleccionados(){
             const ids = Array.from(selectedRows);
             if(!ids.length) return;
-            const tipo = document.getElementById('sel-form').value === 'Merma' ? 'Merma' : 'Empaquetado';
+            const tipo = 'Empaquetado';
             if(!confirm(`¿Seguro que deseas borrar ${ids.length} registro(s) seleccionados de ${tipo}?`)) return;
 
             const estado = document.getElementById('estado');
@@ -937,7 +907,6 @@
         }
 
         async function cargar(){
-            const selForm = document.getElementById('sel-form').value;
             const monthValue = String(document.getElementById('reg-month')?.value || '').trim();
             const dateValue = String(document.getElementById('reg-date')?.value || '').trim();
             const estado = document.getElementById('estado');
@@ -946,7 +915,7 @@
             errBox.textContent='';
             estado.textContent = 'Cargando...';
             try{
-                const tipo = selForm === 'Merma' ? 'Merma' : 'Empaquetado';
+                const tipo = 'Empaquetado';
                 const params = new URLSearchParams({ tipo });
                 if(monthValue) params.set('mes', monthValue);
                 if(dateValue) params.set('fecha', dateValue);
@@ -974,7 +943,7 @@
         }
 
         document.getElementById('btn-actualizar').addEventListener('click', cargar);
-        document.getElementById('sel-form').addEventListener('change', cargar);
+        document.getElementById('sel-form').addEventListener('change', () => { document.getElementById('sel-form').value = 'Empaquetado'; cargar(); });
         document.getElementById('reg-month').addEventListener('change', cargar);
         document.getElementById('reg-date').addEventListener('change', cargar);
         document.getElementById('reg-search').addEventListener('input', repaint);
