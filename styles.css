@@ -68,6 +68,8 @@
 }
 .brand-logo-large {
     width: 180px;
+    height: 180px;
+    object-fit: contain;
     margin-bottom: 0;
 }
 body {
@@ -530,9 +532,9 @@ body {
 }
 
 #reg-search {
-    background: #0f1630;
-    border: 1px solid #2f3d68;
-    color: #dbe2ff;
+    background: #F8F3E9;
+    border: 1px solid #d9c8ab;
+    color: #000000;
     border-radius: 10px;
     padding: 10px 12px;
     min-height: 40px;
@@ -571,8 +573,8 @@ body {
     right: 24px;
     bottom: 24px;
     gap: 8px;
-    background: rgba(20, 27, 51, 0.92);
-    border: 1px solid rgba(255,255,255,0.09);
+    background: rgba(248,243,233,0.95);
+    border: 1px solid rgba(192,110,50,0.45);
     border-radius: 14px;
     padding: 6px;
     backdrop-filter: blur(8px);
@@ -590,7 +592,7 @@ body {
     width: min(560px, calc(100vw - 48px));
     right: 24px;
     bottom: 82px;
-    border: 1px solid rgba(255,255,255,0.08);
+    border: 1px solid rgba(192,110,50,0.45);
     box-shadow: 0 12px 30px rgba(0,0,0,0.22);
 }
 
@@ -700,7 +702,7 @@ input[type="text"], input[type="number"], input[type="date"], select {
 }
 
 .prod-name {
-    color: #d5dbf0;
+    color: #000000;
 }
 
 /* ===== Tema Pan de Tata ===== */
@@ -763,7 +765,7 @@ button:hover,
 .btn-small:hover,
 .footer-btn:hover,
 .menu-primary-btn:hover {
-    background: #a85f2b;
+    background: #000000;
     color: #fff;
 }
 
@@ -774,5 +776,28 @@ button.secondary,
 }
 
 .volver-menu {
+    color: var(--pdt-brown);
+}
+
+/* Variantes de footer */
+.footer-btn--primary {
+    background: var(--pdt-black) !important;
+    color: var(--pdt-cream) !important;
+}
+.footer-btn--secondary {
+    background: var(--pdt-brown) !important;
+    color: var(--pdt-cream) !important;
+}
+.inicio-btn {
+    background: var(--pdt-brown) !important;
+    color: var(--pdt-cream) !important;
+}
+
+/* Panel protegido en paleta */
+.apps-script-link {
+    background: var(--pdt-cream);
+    color: var(--pdt-black);
+}
+.apps-script-link a {
     color: var(--pdt-brown);
 }
