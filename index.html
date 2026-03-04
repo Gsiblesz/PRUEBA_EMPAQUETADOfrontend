@@ -26,23 +26,23 @@
         .registros-wrap { width: min(1320px, 96vw); margin: 0 auto; padding: 20px 0 40px; }
         .reg-toolbar { display:flex; align-items:flex-start; gap:12px; flex-wrap:wrap; justify-content:space-between; margin:18px 0; }
         .reg-toolbar-left { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
-        .reg-card { background:#16203a; border:1px solid #273455; padding:10px 12px; border-radius:12px; display:flex; gap:8px; align-items:center; color:#dbe2ff; }
-        .reg-status { color:#7d8fb3; font-size:.9rem; }
-        .reg-status .badge { background:#2e8b57; color:white; padding:2px 8px; border-radius:12px; font-size:.75rem; }
-        .reg-error { display:none; background:rgba(255,107,107,.1); border:1px solid rgba(255,107,107,.3); color:#8c1d2e; padding:10px 12px; border-radius:10px; margin-top:8px; }
-        .reg-table-wrap { background:#fff; border:1px solid #d7deea; border-radius:14px; overflow-y:auto; overflow-x:hidden; box-shadow:0 2px 10px rgba(20,35,70,0.06); }
+        .reg-card { background:#F8F3E9; border:1px solid #d9c8ab; padding:10px 12px; border-radius:12px; display:flex; gap:8px; align-items:center; color:#000000; }
+        .reg-status { color:#000000; font-size:.9rem; }
+        .reg-status .badge { background:#C06E32; color:#F8F3E9; padding:2px 8px; border-radius:12px; font-size:.75rem; }
+        .reg-error { display:none; background:rgba(192,110,50,.12); border:1px solid rgba(192,110,50,.35); color:#000000; padding:10px 12px; border-radius:10px; margin-top:8px; }
+        .reg-table-wrap { background:#fff; border:1px solid #d9c8ab; border-radius:14px; overflow-y:auto; overflow-x:hidden; box-shadow:0 2px 10px rgba(0,0,0,0.06); }
         .reg-table { width:100%; border-collapse:collapse; table-layout:fixed; }
-        .reg-table thead th { background:#f2f5fb; text-align:left; font-weight:700; padding:10px 10px; border-bottom:1px solid #d7deea; position:sticky; top:0; z-index:1; color:#1d2f4f; font-size:.92rem; }
-        .reg-table tbody td { padding:9px 10px; border-bottom:1px solid #e4eaf4; color:#2b3f63; font-size:.9rem; white-space:normal; word-break:break-word; }
-        .reg-table tbody tr:hover { background:#f7faff; }
-        .reg-check { width:18px; height:18px; accent-color:#1f6fd2; cursor:pointer; }
+        .reg-table thead th { background:#f2e7d7; text-align:left; font-weight:700; padding:10px 10px; border-bottom:1px solid #d9c8ab; position:sticky; top:0; z-index:1; color:#000000; font-size:.92rem; }
+        .reg-table tbody td { padding:9px 10px; border-bottom:1px solid #eadac0; color:#000000; font-size:.9rem; white-space:normal; word-break:break-word; }
+        .reg-table tbody tr:hover { background:#f8efe2; }
+        .reg-check { width:18px; height:18px; accent-color:#C06E32; cursor:pointer; }
         .reg-actions { display:flex; gap:10px; flex-wrap:wrap; }
-        .btn-danger { background:#c0392b !important; color:#fff !important; }
-        .btn-danger:hover { background:#a93226 !important; }
-        .resumen-note { background:#eef6ff; border:1px solid #b7d5ff; color:#1d4b84; border-radius:12px; padding:10px 14px; font-size:.95rem; margin-bottom:14px; }
-        .results-hero { background:#0f536f; color:#eaf6ff; border-radius:20px; padding:18px 20px; margin-bottom:14px; }
+        .btn-danger { background:#000000 !important; color:#F8F3E9 !important; }
+        .btn-danger:hover { background:#C06E32 !important; color:#F8F3E9 !important; }
+        .resumen-note { background:#fff8ef; border:1px solid #e3cfb0; color:#000000; border-radius:12px; padding:10px 14px; font-size:.95rem; margin-bottom:14px; }
+        .results-hero { background:#000000; color:#F8F3E9; border-radius:20px; padding:18px 20px; margin-bottom:14px; }
         .results-hero h2 { margin:0 0 6px; font-size:1.9rem; }
-        .results-hero p { margin:0; color:#d8ecfb; }
+        .results-hero p { margin:0; color:#F8F3E9; }
         .menu-dashboard { width:min(1100px, 94vw); margin:18px auto 0; display:grid; gap:16px; }
         .menu-welcome-card { background:rgba(248,243,233,0.70); backdrop-filter:blur(2px); color:var(--pdt-negro); border-radius:22px; padding:20px 24px; box-shadow:0 8px 24px rgba(0,0,0,.12); text-align:center; border:1px solid rgba(192,110,50,.35); }
         .menu-welcome-card h2 { margin:0 0 8px; font-size:2.7rem; font-family: 'Arial Black', Arial, sans-serif; color:var(--pdt-negro); }
@@ -64,7 +64,7 @@
     <section id="page-menu" class="app-page active">
         <div class="menu-page">
             <div class="brand-corner">
-                <img src="cropped-PDT-favicon.png" alt="Pan de Tata" class="brand-logo-large" onerror="this.src='BRAND.svg'">
+                <img src="logopandetata.png" alt="Pan de Tata" class="brand-logo-large" onerror="this.src='cropped-PDT-favicon.png'">
             </div>
             <div class="menu-dashboard">
                 <div class="menu-welcome-card">
@@ -91,16 +91,16 @@
                 </div>
             </div>
             <div class="menu-footer-corner">
-                <a href="#" class="footer-btn" style="background:#2196f3;" onclick="openRegistros(event)">Resultados</a>
-                <a href="#" class="footer-btn" style="background:#43e6b1; color:#23263a;" onclick="openProductos(event)">Catálogo</a>
+                <a href="#" class="footer-btn footer-btn--primary" onclick="openRegistros(event)">Resultados</a>
+                <a href="#" class="footer-btn footer-btn--secondary" onclick="openProductos(event)">Catálogo</a>
                 <a href="#" class="footer-btn inicio-btn" onclick="showPage('menu')">Inicio</a>
             </div>
             <div id="panel-ajustes" class="apps-script-link" style="display:none; flex-direction:column; gap:12px;">
                 <strong>Acceso protegido</strong>
-                <label style="font-size:0.9rem; color:#bfc8e2;">Clave (para ver respuestas y paneles):</label>
-                <input id="input-key" type="password" placeholder="Ingresa la clave" style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid #444; background:#23263a; color:#fff;">
-                <button class="footer-btn" style="padding:10px 12px; font-size:0.8rem; background:#ffb347; color:#23263a; width:max-content;" onclick="desbloquearURL()">Desbloquear acceso</button>
-                <button class="footer-btn" style="padding:10px 16px; font-size:0.9rem; background:#43e6b1; color:#23263a;" onclick="cerrarAjustes()">Cerrar</button>
+                <label style="font-size:0.9rem; color:#000000;">Clave (para ver respuestas y paneles):</label>
+                <input id="input-key" type="password" placeholder="Ingresa la clave" style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid #C06E32; background:#F8F3E9; color:#000000;">
+                <button class="footer-btn footer-btn--secondary" style="padding:10px 12px; font-size:0.8rem; width:max-content;" onclick="desbloquearURL()">Desbloquear acceso</button>
+                <button class="footer-btn footer-btn--primary" style="padding:10px 16px; font-size:0.9rem;" onclick="cerrarAjustes()">Cerrar</button>
                 <div id="resultado-prueba" style="margin-top:4px; font-size:0.85rem;"></div>
                 <p style="margin-top:8px; font-size:0.7rem; opacity:0.7;">La clave solo habilita la visualización de paneles administrativos.</p>
             </div>
@@ -249,7 +249,7 @@
             </div>
             <div class="page-head" style="text-align:center; margin: 6px 0 18px;">
                 <h1>Registros recientes</h1>
-                <div style="color:#bfc8e2; font-size:.95rem;">Consulta las últimas filas guardadas desde Empaquetados</div>
+                <div style="color:#000000; font-size:.95rem;">Consulta las últimas filas guardadas desde Empaquetados</div>
                 <div style="margin-top:10px;">
                     <a href="#" class="volver-menu" onclick="showPage('menu'); return false;">&#8592; Volver al menú</a>
                 </div>
@@ -258,7 +258,7 @@
             <div class="reg-toolbar">
                 <div class="reg-toolbar-left">
                     <div class="reg-card">
-                        <label style="margin:0; color:#bfc8e2; font-size:.92rem;">Formulario</label>
+                        <label style="margin:0; color:#000000; font-size:.92rem;">Formulario</label>
                         <select id="sel-form">
                             <option value="Empaquetado">Empaquetados</option>
                             <option value="Almacen09">Almacén09</option>
@@ -266,11 +266,11 @@
                         </select>
                     </div>
                     <div class="reg-card">
-                        <label style="margin:0; color:#bfc8e2; font-size:.92rem;">Mes</label>
+                        <label style="margin:0; color:#000000; font-size:.92rem;">Mes</label>
                         <input id="reg-month" type="month" />
                     </div>
                     <div class="reg-card">
-                        <label style="margin:0; color:#bfc8e2; font-size:.92rem;">Fecha</label>
+                        <label style="margin:0; color:#000000; font-size:.92rem;">Fecha</label>
                         <input id="reg-date" type="date" />
                     </div>
                     <div class="reg-actions">
@@ -298,7 +298,7 @@
         <div class="container registros-wrap" style="padding-top:8px;">
             <div class="page-head" style="text-align:center; margin: 6px 0 16px;">
                 <h1>Almacén 09</h1>
-                <div style="color:#bfc8e2; font-size:.95rem;">Validación de conteo contra registros de Empaquetado</div>
+                <div style="color:#000000; font-size:.95rem;">Validación de conteo contra registros de Empaquetado</div>
                 <div style="margin-top:10px;">
                     <a href="#" class="volver-menu" onclick="showPage('menu'); return false;">&#8592; Volver al menú</a>
                 </div>
@@ -363,7 +363,7 @@
         p.style.display = 'flex';
         const res = document.getElementById('resultado-prueba');
         res.textContent = 'Ingresa la clave para acceder a Productos';
-        res.style.color = '#ffb347';
+        res.style.color = '#C06E32';
         try { sessionStorage.setItem('GOTO_PRODUCTOS','1'); } catch(_) {}
         const keyInput = document.getElementById('input-key');
         if(keyInput) keyInput.focus();
@@ -375,7 +375,7 @@
         p.style.display = 'flex';
         const res = document.getElementById('resultado-prueba');
         res.textContent = 'Ingresa la clave para acceder a Registros';
-        res.style.color = '#ffb347';
+        res.style.color = '#C06E32';
         try { sessionStorage.setItem('GOTO_REGISTROS','1'); } catch(_) {}
         const keyInput = document.getElementById('input-key');
         if(keyInput) keyInput.focus();
@@ -410,7 +410,7 @@
             }
         } catch(_) {}
     }
-    function mostrarResultado(msg, ok){ const el=document.getElementById('resultado-prueba'); el.textContent=msg; el.style.color= ok?'#43e6b1':'#ff7675'; }
+    function mostrarResultado(msg, ok){ const el=document.getElementById('resultado-prueba'); el.textContent=msg; el.style.color= ok?'#C06E32':'#000000'; }
 
     (function(){
         let PRODUCTOS_CACHE = [];
