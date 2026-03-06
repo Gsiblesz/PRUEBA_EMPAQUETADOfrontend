@@ -258,14 +258,6 @@
             <div class="reg-toolbar">
                 <div class="reg-toolbar-left">
                     <div class="reg-card">
-                        <label style="margin:0; color:#000000; font-size:.92rem;">Formulario</label>
-                        <select id="sel-form">
-                            <option value="Empaquetado">Empaquetados</option>
-                            <option value="Almacen09">Almacén09</option>
-                            <option value="General">General</option>
-                        </select>
-                    </div>
-                    <div class="reg-card">
                         <label style="margin:0; color:#000000; font-size:.92rem;">De (dia)</label>
                         <select id="reg-from-day">
                             <option value="">Dia</option>
@@ -841,21 +833,16 @@
         }
 
         function repaint() {
-            const selectedType = String(document.getElementById('sel-form')?.value || 'Empaquetado');
             const filteredRows = getFilteredRows();
             renderTable(allHeaders, filteredRows);
             const estado = document.getElementById('estado');
-            estado.textContent = `Mostrando ${filteredRows.length} de ${allRows.length} • ${selectedType}`;
+            estado.textContent = `Mostrando ${filteredRows.length} de ${allRows.length}`;
         }
 
         async function borrarSeleccionados(){
             const ids = Array.from(selectedRows);
             if(!ids.length) return;
-            const tipo = String(document.getElementById('sel-form')?.value || 'Empaquetado');
-            if (tipo !== 'Empaquetado') {
-                alert('Solo se permite borrar desde la vista Empaquetado.');
-                return;
-            }
+            const tipo = 'Consolidado';
             if(!confirm(`¿Seguro que deseas borrar ${ids.length} registro(s) seleccionados de ${tipo}?`)) return;
 
             const estado = document.getElementById('estado');
@@ -881,7 +868,6 @@
         }
 
         async function cargar(){
-            const selectedType = String(document.getElementById('sel-form')?.value || 'Empaquetado');
             const fromDateValue = buildDateFromFilters('from');
             const toDateValue = buildDateFromFilters('to');
             const monthValue = String(document.getElementById('reg-month')?.value || '').trim();
@@ -892,7 +878,7 @@
             errBox.textContent='';
             estado.textContent = 'Cargando...';
             try{
-                const tipo = selectedType;
+                const tipo = 'Consolidado';
                 const params = new URLSearchParams({ tipo });
                 if(fromDateValue) params.set('desde', fromDateValue);
                 if(toDateValue) params.set('hasta', toDateValue);
@@ -966,7 +952,6 @@
         }
 
         document.getElementById('btn-actualizar').addEventListener('click', cargar);
-        document.getElementById('sel-form').addEventListener('change', cargar);
         document.getElementById('reg-from-day').addEventListener('change', cargar);
         document.getElementById('reg-to-day').addEventListener('change', cargar);
         document.getElementById('reg-month').addEventListener('change', ()=>{ rebuildDayOptions(); cargar(); });
