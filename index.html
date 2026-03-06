@@ -266,12 +266,16 @@
                         </select>
                     </div>
                     <div class="reg-card">
+                        <label style="margin:0; color:#000000; font-size:.92rem;">Semana</label>
+                        <input id="reg-week" type="week" />
+                    </div>
+                    <div class="reg-card">
                         <label style="margin:0; color:#000000; font-size:.92rem;">Mes</label>
                         <input id="reg-month" type="month" />
                     </div>
                     <div class="reg-card">
-                        <label style="margin:0; color:#000000; font-size:.92rem;">Fecha</label>
-                        <input id="reg-date" type="date" />
+                        <label style="margin:0; color:#000000; font-size:.92rem;">Año</label>
+                        <input id="reg-year" type="number" min="2000" max="2100" step="1" placeholder="2026" />
                     </div>
                     <div class="reg-actions">
                         <button id="btn-actualizar" class="btn-small">Actualizar</button>
@@ -798,13 +802,31 @@
 
         function getFilteredRows() {
             const term = String(document.getElementById('reg-search')?.value || '').trim().toLowerCase();
+            const weekValue = String(document.getElementById('reg-week')?.value || '').trim();
             const monthValue = String(document.getElementById('reg-month')?.value || '').trim();
-            const dateValue = String(document.getElementById('reg-date')?.value || '').trim();
+            const yearValue = String(document.getElementById('reg-year')?.value || '').trim();
+
+            function getIsoWeekFromFecha(fecha) {
+                const m = /^([0-9]{4})-([0-9]{2})-([0-9]{2})$/.exec(String(fecha || '').trim());
+                if (!m) return '';
+                const y = Number(m[1]);
+                const mo = Number(m[2]);
+                const d = Number(m[3]);
+                const date = new Date(Date.UTC(y, mo - 1, d));
+                const day = date.getUTCDay() || 7;
+                date.setUTCDate(date.getUTCDate() + 4 - day);
+                const isoYear = date.getUTCFullYear();
+                const yearStart = new Date(Date.UTC(isoYear, 0, 1));
+                const weekNo = Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
+                return `${isoYear}-W${String(weekNo).padStart(2, '0')}`;
+            }
 
             return allRows.filter((row) => {
                 const fecha = String(row?.['FECHA'] || '').trim();
+                const fechaWeek = getIsoWeekFromFecha(fecha);
+                if (weekValue && (!fechaWeek || fechaWeek !== weekValue)) return false;
                 if (monthValue && (!fecha || !fecha.startsWith(monthValue))) return false;
-                if (dateValue && fecha !== dateValue) return false;
+                if (yearValue && (!fecha || !fecha.startsWith(`${yearValue}-`))) return false;
                 if (!term) return true;
                 return Object.values(row || {}).some((value) => String(value || '').toLowerCase().includes(term));
             });
@@ -852,8 +874,9 @@
 
         async function cargar(){
             const selectedType = String(document.getElementById('sel-form')?.value || 'Empaquetado');
+            const weekValue = String(document.getElementById('reg-week')?.value || '').trim();
             const monthValue = String(document.getElementById('reg-month')?.value || '').trim();
-            const dateValue = String(document.getElementById('reg-date')?.value || '').trim();
+            const yearValue = String(document.getElementById('reg-year')?.value || '').trim();
             const estado = document.getElementById('estado');
             const errBox = document.getElementById('err');
             errBox.style.display='none';
@@ -862,8 +885,9 @@
             try{
                 const tipo = selectedType;
                 const params = new URLSearchParams({ tipo });
+                if(weekValue) params.set('semana', weekValue);
                 if(monthValue) params.set('mes', monthValue);
-                if(dateValue) params.set('fecha', dateValue);
+                if(yearValue) params.set('anio', yearValue);
                 const url = `${getBaseUrl()}/api/registros?${params.toString()}`;
                 const r = await fetch(url, { method:'GET', cache:'no-store' });
                 if (!r.ok) throw new Error(`HTTP ${r.status}`);
@@ -889,13 +913,15 @@
 
         document.getElementById('btn-actualizar').addEventListener('click', cargar);
         document.getElementById('sel-form').addEventListener('change', cargar);
+        document.getElementById('reg-week').addEventListener('change', cargar);
         document.getElementById('reg-month').addEventListener('change', cargar);
-        document.getElementById('reg-date').addEventListener('change', cargar);
+        document.getElementById('reg-year').addEventListener('change', cargar);
         document.getElementById('reg-search').addEventListener('input', repaint);
         document.getElementById('btn-borrar-seleccionados').addEventListener('click', borrarSeleccionados);
         document.getElementById('btn-limpiar-filtros').addEventListener('click', ()=>{
+            document.getElementById('reg-week').value = '';
             document.getElementById('reg-month').value = '';
-            document.getElementById('reg-date').value = '';
+            document.getElementById('reg-year').value = '';
             document.getElementById('reg-search').value = '';
             cargar();
         });
