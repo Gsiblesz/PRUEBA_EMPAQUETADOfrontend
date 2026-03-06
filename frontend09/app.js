@@ -51,6 +51,25 @@ function getRegistroLabel(codigoLote) {
   return `Registro ${numero}`;
 }
 
+function formatFechaVz(value) {
+  const raw = String(value || "").trim();
+  if (!raw) return "";
+  // If backend already sends DD/MM/YYYY HH:MM, keep as-is.
+  if (/^\d{2}\/\d{2}\/\d{4}\s\d{2}:\d{2}$/.test(raw)) return raw;
+
+  const parsed = new Date(raw);
+  if (Number.isNaN(parsed.getTime())) return raw;
+  return parsed.toLocaleString("es-VE", {
+    timeZone: "America/Caracas",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+}
+
 function setEstado(mensaje, esError = false) {
   estado.textContent = mensaje;
   estado.classList.toggle("error", esError);
@@ -88,7 +107,7 @@ async function cargarErroresConteo() {
     if (Array.isArray(data.items) && data.items.length) {
       data.items.forEach((item) => {
         const li = document.createElement("li");
-        const fecha = new Date(item.created_at).toLocaleString();
+        const fecha = formatFechaVz(item.created_at);
         li.textContent = `${fecha} · ${item.codigo_lote || "Sin lote"}`;
         erroresConteoLista.appendChild(li);
       });
@@ -139,7 +158,7 @@ function renderLotes() {
 
     const button = crearElemento("button", "lote-btn");
     button.type = "button";
-    const fechaLote = new Date(lote.created_at).toLocaleString();
+    const fechaLote = formatFechaVz(lote.created_at);
     button.innerHTML = `
       <span class="lote-codigo">${getRegistroLabel(lote.codigo_lote)} · ${lote.codigo_lote}</span>
       <span class="lote-meta">${fechaLote}</span>
