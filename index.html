@@ -266,16 +266,34 @@
                         </select>
                     </div>
                     <div class="reg-card">
-                        <label style="margin:0; color:#000000; font-size:.92rem;">Semana</label>
-                        <input id="reg-week" type="week" />
+                        <label style="margin:0; color:#000000; font-size:.92rem;">De (dia)</label>
+                        <input id="reg-from-date" type="date" />
+                    </div>
+                    <div class="reg-card">
+                        <label style="margin:0; color:#000000; font-size:.92rem;">A (dia)</label>
+                        <input id="reg-to-date" type="date" />
                     </div>
                     <div class="reg-card">
                         <label style="margin:0; color:#000000; font-size:.92rem;">Mes</label>
-                        <input id="reg-month" type="month" />
+                        <select id="reg-month">
+                            <option value="">Todos</option>
+                            <option value="01">Enero</option>
+                            <option value="02">Febrero</option>
+                            <option value="03">Marzo</option>
+                            <option value="04">Abril</option>
+                            <option value="05">Mayo</option>
+                            <option value="06">Junio</option>
+                            <option value="07">Julio</option>
+                            <option value="08">Agosto</option>
+                            <option value="09">Septiembre</option>
+                            <option value="10">Octubre</option>
+                            <option value="11">Noviembre</option>
+                            <option value="12">Diciembre</option>
+                        </select>
                     </div>
                     <div class="reg-card">
                         <label style="margin:0; color:#000000; font-size:.92rem;">Año</label>
-                        <input id="reg-year" type="number" min="2000" max="2100" step="1" placeholder="2026" />
+                        <select id="reg-year"></select>
                     </div>
                     <div class="reg-actions">
                         <button id="btn-actualizar" class="btn-small">Actualizar</button>
@@ -802,30 +820,16 @@
 
         function getFilteredRows() {
             const term = String(document.getElementById('reg-search')?.value || '').trim().toLowerCase();
-            const weekValue = String(document.getElementById('reg-week')?.value || '').trim();
+            const fromDateValue = String(document.getElementById('reg-from-date')?.value || '').trim();
+            const toDateValue = String(document.getElementById('reg-to-date')?.value || '').trim();
             const monthValue = String(document.getElementById('reg-month')?.value || '').trim();
             const yearValue = String(document.getElementById('reg-year')?.value || '').trim();
 
-            function getIsoWeekFromFecha(fecha) {
-                const m = /^([0-9]{4})-([0-9]{2})-([0-9]{2})$/.exec(String(fecha || '').trim());
-                if (!m) return '';
-                const y = Number(m[1]);
-                const mo = Number(m[2]);
-                const d = Number(m[3]);
-                const date = new Date(Date.UTC(y, mo - 1, d));
-                const day = date.getUTCDay() || 7;
-                date.setUTCDate(date.getUTCDate() + 4 - day);
-                const isoYear = date.getUTCFullYear();
-                const yearStart = new Date(Date.UTC(isoYear, 0, 1));
-                const weekNo = Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
-                return `${isoYear}-W${String(weekNo).padStart(2, '0')}`;
-            }
-
             return allRows.filter((row) => {
                 const fecha = String(row?.['FECHA'] || '').trim();
-                const fechaWeek = getIsoWeekFromFecha(fecha);
-                if (weekValue && (!fechaWeek || fechaWeek !== weekValue)) return false;
-                if (monthValue && (!fecha || !fecha.startsWith(monthValue))) return false;
+                if (fromDateValue && (!fecha || fecha < fromDateValue)) return false;
+                if (toDateValue && (!fecha || fecha > toDateValue)) return false;
+                if (monthValue && (!fecha || fecha.slice(5, 7) !== monthValue)) return false;
                 if (yearValue && (!fecha || !fecha.startsWith(`${yearValue}-`))) return false;
                 if (!term) return true;
                 return Object.values(row || {}).some((value) => String(value || '').toLowerCase().includes(term));
@@ -874,7 +878,8 @@
 
         async function cargar(){
             const selectedType = String(document.getElementById('sel-form')?.value || 'Empaquetado');
-            const weekValue = String(document.getElementById('reg-week')?.value || '').trim();
+            const fromDateValue = String(document.getElementById('reg-from-date')?.value || '').trim();
+            const toDateValue = String(document.getElementById('reg-to-date')?.value || '').trim();
             const monthValue = String(document.getElementById('reg-month')?.value || '').trim();
             const yearValue = String(document.getElementById('reg-year')?.value || '').trim();
             const estado = document.getElementById('estado');
@@ -885,7 +890,8 @@
             try{
                 const tipo = selectedType;
                 const params = new URLSearchParams({ tipo });
-                if(weekValue) params.set('semana', weekValue);
+                if(fromDateValue) params.set('desde', fromDateValue);
+                if(toDateValue) params.set('hasta', toDateValue);
                 if(monthValue) params.set('mes', monthValue);
                 if(yearValue) params.set('anio', yearValue);
                 const url = `${getBaseUrl()}/api/registros?${params.toString()}`;
@@ -913,18 +919,37 @@
 
         document.getElementById('btn-actualizar').addEventListener('click', cargar);
         document.getElementById('sel-form').addEventListener('change', cargar);
-        document.getElementById('reg-week').addEventListener('change', cargar);
+        document.getElementById('reg-from-date').addEventListener('change', cargar);
+        document.getElementById('reg-to-date').addEventListener('change', cargar);
         document.getElementById('reg-month').addEventListener('change', cargar);
         document.getElementById('reg-year').addEventListener('change', cargar);
         document.getElementById('reg-search').addEventListener('input', repaint);
         document.getElementById('btn-borrar-seleccionados').addEventListener('click', borrarSeleccionados);
         document.getElementById('btn-limpiar-filtros').addEventListener('click', ()=>{
-            document.getElementById('reg-week').value = '';
+            document.getElementById('reg-from-date').value = '';
+            document.getElementById('reg-to-date').value = '';
             document.getElementById('reg-month').value = '';
-            document.getElementById('reg-year').value = '';
+            const yearSelect = document.getElementById('reg-year');
+            if (yearSelect && yearSelect.options.length) yearSelect.value = yearSelect.options[0].value;
             document.getElementById('reg-search').value = '';
             cargar();
         });
+
+        (function populateYearFilter(){
+            const yearSelect = document.getElementById('reg-year');
+            if (!yearSelect) return;
+            const startYear = 2026;
+            const currentYear = new Date().getFullYear();
+            const maxYear = Math.max(startYear, currentYear);
+            yearSelect.innerHTML = '';
+            for (let year = startYear; year <= maxYear; year += 1) {
+                const option = document.createElement('option');
+                option.value = String(year);
+                option.textContent = String(year);
+                yearSelect.appendChild(option);
+            }
+            if (yearSelect.options.length) yearSelect.value = String(maxYear);
+        })();
         updateDeleteButtonState();
         window.__loadRegistros = cargar;
     })();
