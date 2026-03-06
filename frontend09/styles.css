@@ -1,5 +1,22 @@
 * { box-sizing: border-box; }
 
+.brand-corner {
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  z-index: 30;
+}
+
+.brand-logo {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  border-radius: 50%;
+  border: 2px solid #e2cfae;
+  background: #fff8ed;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
 :root {
   --pdt-black: #000000;
   --pdt-cream: #f8f3e9;

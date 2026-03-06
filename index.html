@@ -55,6 +55,16 @@
         .menu-section .menu-actions { display:flex; gap:10px; flex-wrap:wrap; }
         .menu-primary-btn { display:inline-flex; align-items:center; justify-content:center; text-decoration:none; border:none; border-radius:999px; padding:12px 22px; font-weight:800; font-size:1.02rem; cursor:pointer; margin:0 auto; }
         .menu-primary-btn.empa, .menu-primary-btn.almacen { background:#fff; color:var(--pdt-tostado); }
+        .forms-brand-corner { position: fixed; top: 14px; left: 14px; z-index: 30; }
+        .forms-brand-logo {
+            width: 64px;
+            height: 64px;
+            object-fit: contain;
+            border-radius: 50%;
+            border: 2px solid #e2cfae;
+            background: #fff8ed;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
         @media (max-width: 860px) {
             .menu-sections { grid-template-columns:1fr; }
         }
@@ -109,6 +119,9 @@
     </section>
 
     <section id="page-forms" class="app-page">
+        <div class="forms-brand-corner">
+            <img src="logopandetata.png" alt="Pan de Tata" class="forms-brand-logo" onerror="this.style.display='none'">
+        </div>
         <div class="container page-shell">
             <h1>Prueba de Empaquetado</h1>
             <div style="text-align:center; margin-bottom:20px;">
