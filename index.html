@@ -267,11 +267,15 @@
                     </div>
                     <div class="reg-card">
                         <label style="margin:0; color:#000000; font-size:.92rem;">De (dia)</label>
-                        <input id="reg-from-date" type="date" />
+                        <select id="reg-from-day">
+                            <option value="">Dia</option>
+                        </select>
                     </div>
                     <div class="reg-card">
                         <label style="margin:0; color:#000000; font-size:.92rem;">A (dia)</label>
-                        <input id="reg-to-date" type="date" />
+                        <select id="reg-to-day">
+                            <option value="">Dia</option>
+                        </select>
                     </div>
                     <div class="reg-card">
                         <label style="margin:0; color:#000000; font-size:.92rem;">Mes</label>
@@ -820,8 +824,8 @@
 
         function getFilteredRows() {
             const term = String(document.getElementById('reg-search')?.value || '').trim().toLowerCase();
-            const fromDateValue = String(document.getElementById('reg-from-date')?.value || '').trim();
-            const toDateValue = String(document.getElementById('reg-to-date')?.value || '').trim();
+            const fromDateValue = buildDateFromFilters('from');
+            const toDateValue = buildDateFromFilters('to');
             const monthValue = String(document.getElementById('reg-month')?.value || '').trim();
             const yearValue = String(document.getElementById('reg-year')?.value || '').trim();
 
@@ -878,8 +882,8 @@
 
         async function cargar(){
             const selectedType = String(document.getElementById('sel-form')?.value || 'Empaquetado');
-            const fromDateValue = String(document.getElementById('reg-from-date')?.value || '').trim();
-            const toDateValue = String(document.getElementById('reg-to-date')?.value || '').trim();
+            const fromDateValue = buildDateFromFilters('from');
+            const toDateValue = buildDateFromFilters('to');
             const monthValue = String(document.getElementById('reg-month')?.value || '').trim();
             const yearValue = String(document.getElementById('reg-year')?.value || '').trim();
             const estado = document.getElementById('estado');
@@ -917,20 +921,65 @@
             }
         }
 
+        function buildDateFromFilters(kind){
+            const dayId = kind === 'from' ? 'reg-from-day' : 'reg-to-day';
+            const dayValue = String(document.getElementById(dayId)?.value || '').trim();
+            const monthValue = String(document.getElementById('reg-month')?.value || '').trim();
+            const yearValue = String(document.getElementById('reg-year')?.value || '').trim();
+            if (!dayValue || !monthValue || !yearValue) return '';
+            return `${yearValue}-${monthValue}-${dayValue}`;
+        }
+
+        function rebuildDayOptions(){
+            const monthValue = String(document.getElementById('reg-month')?.value || '').trim();
+            const yearValue = Number(document.getElementById('reg-year')?.value || 0);
+            const fromSelect = document.getElementById('reg-from-day');
+            const toSelect = document.getElementById('reg-to-day');
+            if (!fromSelect || !toSelect) return;
+
+            const prevFrom = String(fromSelect.value || '').trim();
+            const prevTo = String(toSelect.value || '').trim();
+
+            const baseOption = '<option value="">Dia</option>';
+            if (!monthValue || !yearValue) {
+                fromSelect.innerHTML = baseOption;
+                toSelect.innerHTML = baseOption;
+                fromSelect.disabled = true;
+                toSelect.disabled = true;
+                return;
+            }
+
+            const daysInMonth = new Date(yearValue, Number(monthValue), 0).getDate();
+            const dayOptions = [baseOption];
+            for (let d = 1; d <= daysInMonth; d += 1) {
+                const day = String(d).padStart(2, '0');
+                dayOptions.push(`<option value="${day}">${day}</option>`);
+            }
+
+            fromSelect.innerHTML = dayOptions.join('');
+            toSelect.innerHTML = dayOptions.join('');
+            fromSelect.disabled = false;
+            toSelect.disabled = false;
+
+            if (prevFrom && Number(prevFrom) <= daysInMonth) fromSelect.value = prevFrom;
+            if (prevTo && Number(prevTo) <= daysInMonth) toSelect.value = prevTo;
+        }
+
         document.getElementById('btn-actualizar').addEventListener('click', cargar);
         document.getElementById('sel-form').addEventListener('change', cargar);
-        document.getElementById('reg-from-date').addEventListener('change', cargar);
-        document.getElementById('reg-to-date').addEventListener('change', cargar);
-        document.getElementById('reg-month').addEventListener('change', cargar);
-        document.getElementById('reg-year').addEventListener('change', cargar);
+        document.getElementById('reg-from-day').addEventListener('change', cargar);
+        document.getElementById('reg-to-day').addEventListener('change', cargar);
+        document.getElementById('reg-month').addEventListener('change', ()=>{ rebuildDayOptions(); cargar(); });
+        document.getElementById('reg-year').addEventListener('change', ()=>{ rebuildDayOptions(); cargar(); });
         document.getElementById('reg-search').addEventListener('input', repaint);
         document.getElementById('btn-borrar-seleccionados').addEventListener('click', borrarSeleccionados);
         document.getElementById('btn-limpiar-filtros').addEventListener('click', ()=>{
-            document.getElementById('reg-from-date').value = '';
-            document.getElementById('reg-to-date').value = '';
+            document.getElementById('reg-from-day').value = '';
+            document.getElementById('reg-to-day').value = '';
             document.getElementById('reg-month').value = '';
             const yearSelect = document.getElementById('reg-year');
             if (yearSelect && yearSelect.options.length) yearSelect.value = yearSelect.options[0].value;
+            rebuildDayOptions();
             document.getElementById('reg-search').value = '';
             cargar();
         });
@@ -949,6 +998,7 @@
                 yearSelect.appendChild(option);
             }
             if (yearSelect.options.length) yearSelect.value = String(maxYear);
+            rebuildDayOptions();
         })();
         updateDeleteButtonState();
         window.__loadRegistros = cargar;
