@@ -70,12 +70,29 @@ function getInputValueById(id) {
     return el ? String(el.value || '').trim() : '';
 }
 
+function getSelectLabelById(id) {
+    const el = document.getElementById(id);
+    if (!el) return '';
+    if (String(el.tagName || '').toUpperCase() !== 'SELECT') {
+        return String(el.value || '').trim();
+    }
+
+    const value = String(el.value || '').trim();
+    if (!value) return '';
+
+    const selected = el.options && el.selectedIndex >= 0 ? el.options[el.selectedIndex] : null;
+    if (!selected) return value;
+
+    const label = String(selected.textContent || selected.innerText || '').trim();
+    return label || value;
+}
+
 function buildResumenMeta(formId) {
     const isEmpa = formId === 'empaquetados-form';
     const fecha = isEmpa ? formatFechaVisual(getInputValueById('empa-fecha')) : formatFechaVisual(getInputValueById('merma-fecha'));
     const hora = isEmpa ? getInputValueById('empa-hora') : getInputValueById('merma-hora');
-    const responsable = isEmpa ? getInputValueById('empa-responsable') : getInputValueById('merma-responsable');
-    const sede = isEmpa ? getInputValueById('empa-sede') : getInputValueById('merma-sede');
+    const responsable = isEmpa ? getSelectLabelById('empa-responsable') : getSelectLabelById('merma-responsable');
+    const sede = isEmpa ? getSelectLabelById('empa-sede') : getSelectLabelById('merma-sede');
 
     const baseItems = [
         ['Fecha', fecha || '-'],
@@ -86,7 +103,7 @@ function buildResumenMeta(formId) {
 
     if (isEmpa) {
         const maquina = getInputValueById('empa-maquina');
-        const entregado = getInputValueById('empa-entregado');
+        const entregado = getSelectLabelById('empa-entregado');
         const registro = getInputValueById('empa-registro');
         const lotePreview = getInputValueById('empa-lote-preview').replace(/^Lote:\s*/i, '');
         baseItems.splice(2, 0,
