@@ -753,6 +753,15 @@ body {
     color: #3f2f24;
 }
 
+#form-empaquetados .panel-item {
+    color: #2a1f16;
+    font-weight: 700;
+}
+
+#form-empaquetados .panel-item strong {
+    color: #1a120c;
+}
+
 button,
 .btn-small,
 .footer-btn,
