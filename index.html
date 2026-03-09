@@ -894,6 +894,7 @@
             try{
                 const tipo = 'Consolidado';
                 const params = new URLSearchParams({ tipo });
+                params.set('limit', '5000');
                 if(fromDateValue) params.set('desde', fromDateValue);
                 if(toDateValue) params.set('hasta', toDateValue);
                 if(monthValue) params.set('mes', monthValue);
