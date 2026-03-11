@@ -395,6 +395,41 @@ table.tabla-productos tbody tr:nth-child(odd){ background:#1f2336; }
 table.tabla-productos tbody tr:hover { background:#313954; }
 .estado-carga { margin-top:12px; font-size:0.8rem; color:#bfc8e2; }
 
+/* Ajustes de contraste para Catálogo de Productos */
+#page-productos .productos-admin h1,
+#page-productos .productos-admin h3 {
+    color: #f3f6ff;
+}
+#page-productos .productos-admin .volver-menu {
+    color: #C06E32;
+    border: 1px solid rgba(192, 110, 50, 0.35);
+    box-shadow: 0 2px 8px rgba(192, 110, 50, 0.18);
+}
+#page-productos .productos-admin .volver-menu:hover {
+    background: #C06E32;
+    color: #111827;
+}
+#page-productos .productos-actions input,
+#page-productos .nuevo-form input,
+#page-productos .nuevo-form select {
+    background: #1f2336;
+    color: #f3f6ff;
+    border: 1px solid #3a425f;
+}
+#page-productos .productos-actions input::placeholder,
+#page-productos .nuevo-form input::placeholder {
+    color: #a9b3d3;
+}
+#page-productos .nuevo-form small {
+    color: #d8deef;
+}
+#page-productos table.tabla-productos th {
+    color: #f3f6ff;
+}
+#page-productos table.tabla-productos td {
+    color: #edf1ff;
+}
+
 .confirm-modal {
     position: fixed;
     inset: 0;

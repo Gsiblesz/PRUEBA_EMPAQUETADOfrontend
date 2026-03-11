@@ -367,6 +367,19 @@
         return normalized || APP_DEFAULT_BACKEND_URL;
     }
 
+    function setAdminSessionKey(key){
+        const clean = String(key || '').trim();
+        if(!clean) return;
+        try { sessionStorage.setItem('ADMIN_UNLOCKED_KEY', clean); } catch(_) {}
+    }
+    function getAdminSessionKey(){
+        try {
+            const stored = String(sessionStorage.getItem('ADMIN_UNLOCKED_KEY') || '').trim();
+            if(stored) return stored;
+        } catch(_) {}
+        return APP_ADMIN_KEY;
+    }
+
     function showPage(page) {
         document.querySelectorAll('.app-page').forEach(el => el.classList.remove('active'));
         const target = document.getElementById(`page-${page}`);
@@ -427,6 +440,7 @@
         if(key !== APP_ADMIN_KEY){ mostrarResultado('Clave incorrecta', false); return; }
         mostrarResultado('Acceso desbloqueado', true);
         try { sessionStorage.setItem('ADMIN_UNLOCKED','1'); } catch(_) {}
+        setAdminSessionKey(key);
         try {
             if(sessionStorage.getItem('GOTO_PRODUCTOS') === '1'){
                 sessionStorage.removeItem('GOTO_PRODUCTOS');
@@ -625,6 +639,11 @@
             if(window.__empaPanel) window.__empaPanel.render(window.__empaPanel.buscar.value);
         }
 
+        window.__refreshProductoPicker = async function(){
+            PRODUCTOS_CACHE = [];
+            await refreshPanels();
+        };
+
         document.addEventListener('DOMContentLoaded', async ()=>{
             const initial = String((window.location.hash || '').replace('#','')).trim().toLowerCase();
             if (initial === 'menu' || initial === 'forms' || initial === 'productos' || initial === 'registros' || initial === 'almacen09') showPage(initial);
@@ -638,6 +657,9 @@
             populateSelect('empa-entregado', '/destinos', 'id_destino', 'nombre');
 
             await refreshPanels();
+            window.addEventListener('productos-actualizados', async ()=>{
+                try { await window.__refreshProductoPicker(); } catch(_) {}
+            });
             const fechaEmpa = document.getElementById('empa-fecha');
             const maqEmpa = document.getElementById('empa-maquina');
             if(fechaEmpa) fechaEmpa.addEventListener('change', updateEmpaLotes);
@@ -647,14 +669,16 @@
     })();
 
     (function(){
-        const ADMIN_KEY = '#FANDETATA';
         let cache = [];
         let filtro = '';
         const cuerpo = document.querySelector('#tabla-productos tbody');
         const estado = document.getElementById('estado-carga');
         function endpointProductos(){ return `${getBaseUrl()}/productos`; }
         function endpointAdd(){ return `${getBaseUrl()}/productos`; }
-        function endpointDelete(codigo){ return `${getBaseUrl()}/productos/${encodeURIComponent(codigo)}`; }
+        function endpointDelete(codigo){
+            const adminKey = encodeURIComponent(getAdminSessionKey());
+            return `${getBaseUrl()}/productos/${encodeURIComponent(codigo)}?adminKey=${adminKey}`;
+        }
 
         async function cargar(){
             if (!cuerpo || !estado) return;
@@ -691,11 +715,17 @@
             try{
                 const r = await fetch(endpointDelete(codigo), {
                     method:'DELETE',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ adminKey: ADMIN_KEY })
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-admin-key': getAdminSessionKey()
+                    }
                 });
                 const t = await r.text(); let j; try{ j = JSON.parse(t);}catch(_){ j={ok:r.ok}; }
-                if(j.ok){ await cargar(); estado.textContent = 'Producto eliminado'; }
+                if(j.ok){
+                    await cargar();
+                    estado.textContent = 'Producto eliminado';
+                    window.dispatchEvent(new Event('productos-actualizados'));
+                }
                 else { estado.textContent = 'No se pudo eliminar'; }
             }catch(_){ estado.textContent = 'Error de conexión'; }
         }
@@ -710,11 +740,20 @@
             try {
                 const r = await fetch(endpointAdd(), {
                     method:'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ codigo, descripcion: desc, unidad, adminKey: ADMIN_KEY })
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-admin-key': getAdminSessionKey()
+                    },
+                    body: JSON.stringify({ codigo, descripcion: desc, unidad, adminKey: getAdminSessionKey() })
                 });
                 const t = await r.text(); let j; try{ j=JSON.parse(t);}catch(_){ j={ok:r.ok}; }
-                if(j.ok){ msg.textContent='Guardado'; await cargar(); document.getElementById('p-codigo').value=''; document.getElementById('p-desc').value=''; }
+                if(j.ok){
+                    msg.textContent='Guardado';
+                    await cargar();
+                    document.getElementById('p-codigo').value='';
+                    document.getElementById('p-desc').value='';
+                    window.dispatchEvent(new Event('productos-actualizados'));
+                }
                 else { msg.textContent='Error al guardar'; }
             } catch(_){ msg.textContent='Error de conexión'; }
         }
