@@ -679,6 +679,13 @@
             const adminKey = encodeURIComponent(getAdminSessionKey());
             return `${getBaseUrl()}/productos/${encodeURIComponent(codigo)}?adminKey=${adminKey}`;
         }
+        function parseApiResponse(rawText, response){
+            let data = null;
+            try { data = JSON.parse(rawText); } catch(_) { data = null; }
+            const ok = Boolean(data && data.ok) || response.ok;
+            const error = data && data.error ? String(data.error) : '';
+            return { ok, data, error };
+        }
 
         async function cargar(){
             if (!cuerpo || !estado) return;
@@ -717,13 +724,16 @@
                     method:'DELETE',
                     headers: { 'Content-Type': 'application/json' }
                 });
-                const t = await r.text(); let j; try{ j = JSON.parse(t);}catch(_){ j={ok:r.ok}; }
-                if(j.ok){
+                const t = await r.text();
+                const result = parseApiResponse(t, r);
+                if(result.ok){
                     await cargar();
                     estado.textContent = 'Producto eliminado';
                     window.dispatchEvent(new Event('productos-actualizados'));
                 }
-                else { estado.textContent = 'No se pudo eliminar'; }
+                else {
+                    estado.textContent = result.error ? `No se pudo eliminar: ${result.error}` : 'No se pudo eliminar';
+                }
             }catch(_){ estado.textContent = 'Error de conexión'; }
         }
         async function guardar(){
@@ -740,15 +750,18 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ codigo, descripcion: desc, unidad, adminKey: getAdminSessionKey() })
                 });
-                const t = await r.text(); let j; try{ j=JSON.parse(t);}catch(_){ j={ok:r.ok}; }
-                if(j.ok){
+                const t = await r.text();
+                const result = parseApiResponse(t, r);
+                if(result.ok){
                     msg.textContent='Guardado';
                     await cargar();
                     document.getElementById('p-codigo').value='';
                     document.getElementById('p-desc').value='';
                     window.dispatchEvent(new Event('productos-actualizados'));
                 }
-                else { msg.textContent='Error al guardar'; }
+                else {
+                    msg.textContent = result.error ? `Error al guardar: ${result.error}` : 'Error al guardar';
+                }
             } catch(_){ msg.textContent='Error de conexión'; }
         }
 
