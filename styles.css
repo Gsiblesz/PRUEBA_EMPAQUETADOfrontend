@@ -797,6 +797,17 @@ body {
     color: #1a120c;
 }
 
+#form-empaquetados .panel-item:hover,
+#form-empaquetados .panel-item:focus-visible {
+    background: #c06e32;
+    color: #fff;
+}
+
+#form-empaquetados .panel-item:hover strong,
+#form-empaquetados .panel-item:focus-visible strong {
+    color: #fff;
+}
+
 button,
 .btn-small,
 .footer-btn,
