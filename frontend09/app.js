@@ -51,6 +51,26 @@ function getRegistroLabel(codigoLote) {
   return `Registro ${numero}`;
 }
 
+function getLoteVisibleLabel(lote) {
+  if (!lote) return "";
+
+  const loteReferencia = String(lote.lote_referencia || "").trim();
+  if (loteReferencia) return loteReferencia;
+
+  if (Array.isArray(lote.productos) && lote.productos.length) {
+    const lotes = lote.productos
+      .map((item) => String(item && item.lote_producto ? item.lote_producto : "").trim())
+      .filter(Boolean);
+    if (lotes.length) {
+      return Array.from(new Set(lotes)).join(" | ");
+    }
+  }
+
+  const codigoInterno = String(lote.codigo_lote || "").trim();
+  if (/^CAB-\d+$/i.test(codigoInterno)) return "Sin lote";
+  return codigoInterno;
+}
+
 function formatFechaVz(value) {
   const raw = String(value || "").trim();
   if (!raw) return "";
@@ -108,7 +128,7 @@ async function cargarErroresConteo() {
       data.items.forEach((item) => {
         const li = document.createElement("li");
         const fecha = formatFechaVz(item.created_at);
-        li.textContent = `${fecha} · ${item.codigo_lote || "Sin lote"}`;
+        li.textContent = `${fecha} · ${item.codigo_mostrado || item.codigo_lote || "Sin lote"}`;
         erroresConteoLista.appendChild(li);
       });
     }
@@ -159,8 +179,9 @@ function renderLotes() {
     const button = crearElemento("button", "lote-btn");
     button.type = "button";
     const fechaLote = formatFechaVz(lote.created_at);
+    const loteVisible = getLoteVisibleLabel(lote);
     button.innerHTML = `
-      <span class="lote-codigo">${getRegistroLabel(lote.codigo_lote)} · ${lote.codigo_lote}</span>
+      <span class="lote-codigo">${getRegistroLabel(lote.codigo_lote)} · ${loteVisible}</span>
       <span class="lote-meta">${fechaLote}</span>
     `;
     if (loteActivo && loteActivo.codigo_lote === lote.codigo_lote) button.classList.add("activo");
@@ -182,7 +203,7 @@ function renderDetalle() {
     return;
   }
 
-  detalleTitulo.textContent = `${getRegistroLabel(loteActivo.codigo_lote)} · ${loteActivo.codigo_lote}`;
+  detalleTitulo.textContent = `${getRegistroLabel(loteActivo.codigo_lote)} · ${getLoteVisibleLabel(loteActivo)}`;
 
   loteActivo.productos.forEach((producto) => {
     const row = crearElemento("div", "producto-row");
@@ -192,7 +213,7 @@ function renderDetalle() {
     info.innerHTML = `
       <div class="producto-codigo">${producto.codigo}</div>
       <div class="producto-descripcion">${nombreProducto}</div>
-      <div class="producto-lote">Lote: ${producto.lote_producto || loteActivo.codigo_lote}</div>
+      <div class="producto-lote">Lote: ${producto.lote_producto || getLoteVisibleLabel(loteActivo)}</div>
       ${producto.cestas_calculadas !== null && producto.cestas_calculadas !== undefined ? `<div class="producto-cestas">Cestas: ${producto.cestas_calculadas}</div>` : ""}
     `;
 
