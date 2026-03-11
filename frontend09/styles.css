@@ -66,10 +66,25 @@ h1 { margin: 0 0 6px; font-size: 26px; color: var(--pdt-black); }
 .lote-check { width:18px; height:18px; accent-color: var(--pdt-brown); }
 
 .lote-btn { width:100%; text-align:left; background:#fff; border:1px solid var(--pdt-border); border-radius:10px; padding:12px 14px; color:var(--pdt-text); display:flex; flex-direction:column; gap:6px; cursor:pointer; }
-.lote-btn:hover { border-color:var(--pdt-brown); box-shadow:0 4px 12px rgba(192,110,50,.18); }
-.lote-btn.activo { border-color:var(--pdt-brown); box-shadow:0 6px 18px rgba(192,110,50,.24); }
+.lote-btn:hover,
+.lote-btn:focus-visible,
+.lote-btn.activo {
+  background: var(--pdt-brown);
+  border-color: var(--pdt-brown);
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(192,110,50,.24);
+}
 .lote-codigo { font-weight:700; font-size:15px; color: var(--pdt-black); }
 .lote-meta { font-size:12px; color:var(--pdt-muted); }
+
+.lote-btn:hover .lote-codigo,
+.lote-btn:hover .lote-meta,
+.lote-btn:focus-visible .lote-codigo,
+.lote-btn:focus-visible .lote-meta,
+.lote-btn.activo .lote-codigo,
+.lote-btn.activo .lote-meta {
+  color: #fff;
+}
 
 .detalle { display:flex; flex-direction:column; gap:14px; }
 .productos { display:grid; gap:16px; }
